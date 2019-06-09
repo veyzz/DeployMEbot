@@ -7,6 +7,7 @@ import cherrypy
 
 MODE = config.mode
 TOKEN = config.token
+PROXYLIST = config.proxy
 
 
 bot = telebot.TeleBot(TOKEN)
@@ -28,7 +29,6 @@ def _(message):
     bot.send_message(message.chat.id, response)
 
 
-
 @bot.message_handler(content_types=["text"])
 def _(message):
     response = 'Любое сообщение'
@@ -45,9 +45,5 @@ if __name__ == '__main__':
         cherrypy.quickstart(WebhookServer(), '/', {'/': {}})
     elif MODE == 0:
         #Если нужно прокси (вписать свои)
-        '''
-        apihelper.proxy = {
-            'http': '46.4.96.137:8080',
-            'https': '95.88.192.108:3128'
-        }'''
+        apihelper.proxy = PROXYLIST
         bot.polling(none_stop = True)
