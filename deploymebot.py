@@ -51,14 +51,22 @@ def _(message):
 
 @bot.message_handler(content_types=["text"])
 def _(message):
-    response = 'Выберите интересующий Вас элемент меню:'
-    keyboard = types.InlineKeyboardMarkup()
-    button1 = types.InlineKeyboardButton(text="Панель управления", callback_data="panel")
-    button2 = types.InlineKeyboardButton(text="Загрузить бота", callback_data="upload")
-    button3 = types.InlineKeyboardButton(text="О проекте", callback_data="about")
-    keyboard.row(button1, button2)
-    keyboard.row(button3)
-    bot.send_message(message.chat.id, response, reply_markup=keyboard)
+    if message.text == "Загрузить бота":
+        response = '''Загрузите файл в формате <i>*.zip</i> в котором должны содержаться следующие файлы:
+- <code>requerements.txt</code>, в котором указаны зависимости вашего проекта
+- <code>Procfile</code>, в котором указано, какой файл нам нужно запускать
+<b>Важно! У нас установлен интерпретатор Python 3.5.2,
+Позаботьтесь о совместимости Вашего кода!</b>'''
+        keyboard = types.ReplyKeyboardMarkup(True, True)
+        keyboard.row("Панель управления", "Загрузить бота")
+        keyboard.row("О проекте")
+        bot.send_message(message.chat.id, response, reply_markup=keyboard, parse_mode='html')
+    else:
+        response = 'Выберите интересующий Вас элемент меню:'
+        keyboard = types.ReplyKeyboardMarkup(True, True)
+        keyboard.row("Панель управления", "Загрузить бота")
+        keyboard.row("О проекте")
+        bot.send_message(message.chat.id, response, reply_markup=keyboard)
 
         
 if __name__ == '__main__':
