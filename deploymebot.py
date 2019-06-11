@@ -4,6 +4,8 @@ import telebot
 from telebot import apihelper, types
 import cherrypy
 import os
+import zipfile
+from backend import preparefiles
 
 
 MODE = config.mode
@@ -36,37 +38,53 @@ def _(message):
 @bot.message_handler(content_types=['document'])
 def _(message):
     try:
-        file_info = bot.get_file(message.document.file_id)
-        downloaded_file = bot.download_file(file_info.file_path)
+        downloaded_file = bot.download_file(bot.get_file(message.document.file_id).file_path)
+        if message.document.mime_type != "application/zip":
+            bot.reply_to(message, "Файл должен быть формата zip!")
+            return
         path = './download/{}/'.format(message.from_user.id)
         if not os.path.exists(path):
             os.makedirs(path)
         path += message.document.file_name
+        path = os.path.abspath(path)
         with open(path, 'wb') as file:
             file.write(downloaded_file)
-        bot.reply_to(message, "Принял Ваш файл!")
+        with zipfile.ZipFile(path, 'r') as z:
+            files = z.namelist()
+        flag = False
+        for element in files:
+            if 'requirements.txt' in element:
+                flag = True
+        if not flag:
+            bot.reply_to(message, "Вы забыли файл requirements.txt")
+            os.remove(path)
+            return
+        bot.reply_to(message, "Файл принят!")
+        deploy(message.from_user.id, path)
+        os.remove(path)
     except Exception as e:
+        bot.reply_to(message, "Произошла ошибка... Попробуйте еще раз.")
         print(e)
 
 
 @bot.message_handler(content_types=["text"])
 def _(message):
-    if message.text == "Загрузить бота":
+    if message.text == "⬇️ Загрузить бота":
         response = '''Загрузите файл в формате <i>*.zip</i> в котором должны содержаться следующие файлы:
 - <code>requerements.txt</code>, в котором указаны зависимости вашего проекта
 - <code>Procfile</code>, в котором указано, какой файл нам нужно запускать
 <b>Важно! У нас установлен интерпретатор Python 3.5.2,
 Позаботьтесь о совместимости Вашего кода!</b>'''
         keyboard = types.ReplyKeyboardMarkup(True, True)
-        keyboard.row("Панель управления", "Загрузить бота")
-        keyboard.row("О проекте")
+        keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
+        keyboard.row("💬 О проекте")
         bot.send_message(message.chat.id, response,
                          reply_markup=keyboard, parse_mode='html')
     else:
         response = 'Выберите интересующий Вас элемент меню:'
         keyboard = types.ReplyKeyboardMarkup(True, True)
-        keyboard.row("Панель управления", "Загрузить бота")
-        keyboard.row("О проекте")
+        keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
+        keyboard.row("💬 О проекте")
         bot.send_message(message.chat.id, response, reply_markup=keyboard)
 
 
