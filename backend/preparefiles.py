@@ -3,9 +3,9 @@ import subprocess  # safelly run bash scripts from python
 import sys  # redirect stdout
 
 
-def deploy(user_id, req, arch):
+def deploy(user_id, arch):
     # run bash script and redirect stdout
-    sub = subprocess.run(["./preparefiles.sh", str(user_id), req, arch],
+    sub = subprocess.run(["./preparefiles.sh", str(user_id), arch],
                          stdout=sys.stdout)
     if not sub.returncode:
         print("ok")
