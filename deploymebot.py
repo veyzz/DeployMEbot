@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import config
 import telebot
-from telebot import apihelper,types
+from telebot import apihelper, types
 import cherrypy
 import os
 
@@ -43,7 +43,7 @@ def _(message):
             os.makedirs(path)
         path += message.document.file_name
         with open(path, 'wb') as file:
-           file.write(downloaded_file)
+            file.write(downloaded_file)
         bot.reply_to(message, "Принял Ваш файл!")
     except Exception as e:
         print(e)
@@ -60,7 +60,8 @@ def _(message):
         keyboard = types.ReplyKeyboardMarkup(True, True)
         keyboard.row("Панель управления", "Загрузить бота")
         keyboard.row("О проекте")
-        bot.send_message(message.chat.id, response, reply_markup=keyboard, parse_mode='html')
+        bot.send_message(message.chat.id, response,
+                         reply_markup=keyboard, parse_mode='html')
     else:
         response = 'Выберите интересующий Вас элемент меню:'
         keyboard = types.ReplyKeyboardMarkup(True, True)
@@ -68,7 +69,7 @@ def _(message):
         keyboard.row("О проекте")
         bot.send_message(message.chat.id, response, reply_markup=keyboard)
 
-        
+
 if __name__ == '__main__':
     if MODE == 1:
         cherrypy.config.update({
@@ -78,6 +79,6 @@ if __name__ == '__main__':
         })
         cherrypy.quickstart(WebhookServer(), '/', {'/': {}})
     elif MODE == 0:
-        #Если нужно прокси (вписать свои)
+        # Если нужно прокси (вписать свои)
         apihelper.proxy = PROXYLIST
-        bot.polling(none_stop = True)
+        bot.polling(none_stop=True)
