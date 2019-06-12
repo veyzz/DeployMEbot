@@ -19,5 +19,7 @@ mv $pathtobot/bots/$user_id/$bot_name/$dr/* $pathtobot/bots/$user_id/$bot_name/
 python3 -m venv $pathtobot/bots/$user_id/$bot_name/venv
 source $pathtobot/bots/$user_id/$bot_name/venv/bin/activate
 pip3 install -r $pathtobot/bots/$user_id/$bot_name/requirements.txt
-rm -rf $pathtobot/bots/$user_id/$bot_name/$dr 
+rm -rf $pathtobot/bots/$user_id/$bot_name/$dr
+echo "#!/bin/bash" > $pathtobot/bots/$user_id/$bot_name/start.sh
+echo "venv/bin/python3 main.py > main.log 2>&1 &" >> $pathtobot/bots/$user_id/$bot_name/start.sh
 exit 0
