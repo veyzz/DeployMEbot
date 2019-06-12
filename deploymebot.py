@@ -60,7 +60,7 @@ def _(message):
             os.remove(path)
             return
         bot.reply_to(message, "Файл принят!")
-        deploy(message.from_user.id, path)
+        preparefiles.deploy(message.from_user.id, path, os.getcwd())
         os.remove(path)
     except Exception as e:
         bot.reply_to(message, "Произошла ошибка... Попробуйте еще раз.")
