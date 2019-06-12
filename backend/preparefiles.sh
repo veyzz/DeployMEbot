@@ -21,10 +21,9 @@ python3 -m venv $pathtobot/bots/$user_id/$bot_name/venv
 source $pathtobot/bots/$user_id/$bot_name/venv/bin/activate
 pip3 install -r $pathtobot/bots/$user_id/$bot_name/requirements.txt
 rm -rf $pathtobot/bots/$user_id/$bot_name/$dr
+mkdir $pathtobot/bots/$user_id/$bot_name/log
 
 # create sh files
-cat $pathtobot/backend/templates/start_bot > $pathtobot/bots/$user_id/$bot_name/start.sh
-cat $pathtobot/backend/templates/stop_bot > $pathtobot/bots/$user_id/$bot_name/stop.sh
-cat $pathtobot/backend/templates/check_process > $pathtobot/bots/$user_id/$bot_name/check_process.sh
+cat $pathtobot/backend/templates/bot > $pathtobot/bots/$user_id/$bot_name/bot.sh
 
 exit 0
