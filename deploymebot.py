@@ -86,6 +86,12 @@ def _(message):
         keyboard.row("💬 О проекте")
         bot.send_message(message.chat.id, response,
                          reply_markup=keyboard, parse_mode='html')
+    elif message.text == "🔐 Панель управления":
+        response = 'Статус bot1: запущен/не запущен'
+        keyboard = types.ReplyKeyboardMarkup(True, True)
+        keyboard.row("✅ ❌ Запустить/остановить", "🧩 Обновить файлы")
+        keyboard.row("💬 Посмотреть логи")
+        bot.send_message(message.chat.id, response, reply_markup=keyboard)
     else:
         response = 'Выберите интересующий Вас элемент меню:'
         keyboard = types.ReplyKeyboardMarkup(True, True)
