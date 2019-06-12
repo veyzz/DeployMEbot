@@ -1,0 +1,7 @@
+#!/bin/bash
+venv/bin/python3 main.py >> main.log 2>&1 &
+pid=$(echo $!)
+file=$(cat tostart.sh)
+echo $pid > main.pid
+echo "[$(date)] Process $file started, PID is $pid" >> main.log
+
