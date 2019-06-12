@@ -51,12 +51,18 @@ def _(message):
             file.write(downloaded_file)
         with zipfile.ZipFile(path, 'r') as z:
             files = z.namelist()
-        flag = False
+        req = False
+        st = False
         for element in files:
             if 'requirements.txt' in element:
-                flag = True
-        if not flag:
+                req = True
+            if 'tostart.txt' in element:
+                st = True
+        if not req:
             bot.reply_to(message, "Вы забыли файл requirements.txt")
+        if not st:
+            bot.reply_to(message, "Вы забыли файл tostart.txt")
+        if not (req and st):
             os.remove(path)
             return
         bot.reply_to(message, "Файл принят!")
