@@ -1,10 +1,9 @@
 #!/bin/bash
 bash check_process.sh
 exit_code=$?
-if [ $exit_code = 0 ]
-then
-kill -9 $(cat main.pid)
-rm main.pid
-echo "[$(date)] Process $file stopped" >> main.log
+if [ $exit_code = 0 ]; then
+    kill -9 $(cat main.pid)
+    rm main.pid
+    echo "[$(date)] Process $file stopped" >> main.log
 fi
 
