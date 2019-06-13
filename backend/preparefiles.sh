@@ -41,6 +41,6 @@ mkdir $pathtobot/bots/$user_id/$bot_name/log
 echo "Creating control-file..."
 cat $pathtobot/backend/templates/bot > $pathtobot/bots/$user_id/$bot_name/bot.sh
 
-mv installation.txt $pathtobot/bots/$user_id/$bot_name/
+mv installation.txt $pathtobot/bots/$user_id/$bot_name/log/
 echo "Done"
 exit 0
