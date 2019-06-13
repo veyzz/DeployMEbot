@@ -6,7 +6,7 @@ import cherrypy
 import os
 import zipfile
 from backend import preparefiles
-from dmbhelper import WebhookServer, SQLighter
+from dmbhelper import SQLighter
 
 
 MODE = config.mode
@@ -16,6 +16,17 @@ DB = 'deploymebot.db'
 
 
 bot = telebot.TeleBot(TOKEN)
+
+
+class WebhookServer:
+
+    @cherrypy.expose
+    def index(self):
+        length = int(cherrypy.request.headers['content-length'])
+        json_string = cherrypy.request.body.read(length).decode("utf-8")
+        update = telebot.types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return ''
 
 
 @bot.message_handler(commands=['start', 'help'])
