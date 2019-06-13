@@ -6,24 +6,16 @@ import cherrypy
 import os
 import zipfile
 from backend import preparefiles
+from dmbhelper import WebhookServer, SQLighter
 
 
 MODE = config.mode
 TOKEN = config.token
 PROXYLIST = config.proxy
+DB = 'deploymebot.db'
 
 
 bot = telebot.TeleBot(TOKEN)
-
-
-class WebhookServer(object):
-    @cherrypy.expose
-    def index(self):
-        length = int(cherrypy.request.headers['content-length'])
-        json_string = cherrypy.request.body.read(length).decode("utf-8")
-        update = telebot.types.Update.de_json(json_string)
-        bot.process_new_updates([update])
-        return ''
 
 
 @bot.message_handler(commands=['start', 'help'])
@@ -33,6 +25,9 @@ def _(message):
     keyboard = types.ReplyKeyboardMarkup(True, True)
     keyboard.row('Попробовать')
     bot.send_message(message.chat.id, response, reply_markup=keyboard)
+    db = SQLighter(DB)
+    if not db.select(message.from_user.id):
+        db.insert(message.from_user.id)
 
 
 @bot.message_handler(content_types=['document'])
