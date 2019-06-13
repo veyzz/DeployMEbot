@@ -1,22 +1,5 @@
 # -*- coding: utf-8 -*-
-import config
-import telebot
-import cherrypy
 import sqlite3
-
-
-TOKEN = config.token
-
-
-class WebhookServer:
-
-    @cherrypy.expose
-    def index(self):
-        length = int(cherrypy.request.headers['content-length'])
-        json_string = cherrypy.request.body.read(length).decode("utf-8")
-        update = telebot.types.Update.de_json(json_string)
-        telebot.TeleBot(TOKEN).process_new_updates([update])
-        return ''
 
 
 class SQLighter:
