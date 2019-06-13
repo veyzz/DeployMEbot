@@ -1,4 +1,6 @@
 #!/bin/bash
+exec 1>installation.txt
+exec 2>installation.txt
 # This script prepare file structure for new user's bot
 user_id=$1
 arch=$2
@@ -39,5 +41,6 @@ mkdir $pathtobot/bots/$user_id/$bot_name/log
 echo "Creating control-file..."
 cat $pathtobot/backend/templates/bot > $pathtobot/bots/$user_id/$bot_name/bot.sh
 
+mv installation.txt $pathtobot/bots/$user_id/$bot_name/
 echo "Done"
 exit 0
