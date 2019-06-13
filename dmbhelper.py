@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 import sqlite3
+import config
+import json
+
+
+BOTS_COUNT = config.bots_count
 
 
 class SQLighter:
@@ -15,7 +20,10 @@ class SQLighter:
 
     def select(self, user_id):
         with self.connection:
-            return self.cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchall()
+            result = self.cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchall()
+            if result:
+                return result[0]
+            return None
 
     def insert(self, user_id):
         with self.connection:
@@ -30,3 +38,18 @@ class SQLighter:
 
     def __del__(self):
         self.connection.close()
+
+
+def add_new_bot(user, bot_name):
+    bots = json.loads(user[2])
+    code = 0
+    if bot_name not in bots.keys():
+        if len(bots.keys()) < BOTS_COUNT:
+            bots[bot_name] = {}
+            bots[bot_name]['path'] = './bots/{}/{}'.format(user[0], bot_name)
+            bots[bot_name]['status'] = False
+            bots[bot_name]['expire_time'] = 0
+            code = 1
+        else:
+            code = 2
+    return json.dumps(bots), code

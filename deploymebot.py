@@ -5,14 +5,17 @@ from telebot import apihelper, types
 import cherrypy
 import os
 import zipfile
+import json
+import re
 from backend import preparefiles
-from dmbhelper import SQLighter
+from dmbhelper import SQLighter, add_new_bot
 
 
 MODE = config.mode
 TOKEN = config.token
 PROXYLIST = config.proxy
-DB = 'deploymebot.db'
+DB = config.db
+BOTS_COUNT = config.bots_count
 
 
 bot = telebot.TeleBot(TOKEN)
@@ -44,6 +47,8 @@ def _(message):
 @bot.message_handler(content_types=['document'])
 def _(message):
     try:
+        file_name = re.sub(r'[^A-z0-9\.]', '', message.document.file_name)
+        bot_name, _ = os.path.splitext(file_name)
         downloaded_file = bot.download_file(bot.get_file(message.document.file_id).file_path)
         if message.document.mime_type != "application/zip":
             bot.reply_to(message, "Файл должен быть формата zip!")
@@ -51,7 +56,7 @@ def _(message):
         path = './download/{}/'.format(message.from_user.id)
         if not os.path.exists(path):
             os.makedirs(path)
-        path += message.document.file_name
+        path += file_name
         path = os.path.abspath(path)
         with open(path, 'wb') as file:
             file.write(downloaded_file)
@@ -71,12 +76,23 @@ def _(message):
         if not (req and st):
             os.remove(path)
             return
-        bot.reply_to(message, "Файл принят!")
-        preparefiles.deploy(message.from_user.id, message.document.file_name, os.getcwd())
-        os.remove(path)
+        db = SQLighter(DB)
+        user = db.select(message.from_user.id)
+        bots, changes = add_new_bot(user, bot_name)
+        if changes == 1:
+            db.update(message.from_user.id, 'bots', bots)
+        if changes in range(2):
+            preparefiles.deploy(message.from_user.id, file_name, os.getcwd())
+            os.remove(path)
+            bot.reply_to(message, "Файл принят!")
+        elif changes == 2:
+            response = "Максимальное количество ботов: {}. Больше ботов создать нельзя!".format(BOTS_COUNT)
+            bot.reply_to(message, response)
     except Exception as e:
         bot.reply_to(message, "Произошла ошибка... Попробуйте еще раз.")
-        print(e)
+        if not db.select(message.from_user.id):
+            db.insert(message.from_user.id)
+        print("error: ", e)
 
 
 @bot.message_handler(content_types=["text"])
@@ -84,7 +100,7 @@ def _(message):
     if message.text == "⬇️ Загрузить бота":
         response = '''Загрузите файл в формате <i>*.zip</i> в котором должны содержаться следующие файлы:
 - <code>requerements.txt</code>, в котором указаны зависимости вашего проекта
-- <code>Procfile</code>, в котором указано, какой файл нам нужно запускать
+- <code>tostart.txt</code>, в котором указано, какой файл нам нужно запускать
 <b>Важно! У нас установлен интерпретатор Python 3.5.2,
 Позаботьтесь о совместимости Вашего кода!</b>'''
         keyboard = types.ReplyKeyboardMarkup(True, True)
@@ -93,9 +109,20 @@ def _(message):
         bot.send_message(message.chat.id, response,
                          reply_markup=keyboard, parse_mode='html')
     elif message.text == "🔐 Панель управления":
-        response = 'Статус bot1: запущен/не запущен'
+        db = SQLighter(DB)
+        user = db.select(message.from_user.id)
+        bots = json.loads(user[2])
+        response = 'Ваши боты:'
+        for item in bots.keys():
+            status = 'запущен'
+            if not bots[item]['status']:
+                status = 'не запущен'
+            response += """
+---
+Статус {}: {}
+Осталось времени: {}""".format(item, status, bots[item]['expire_time'])
         keyboard = types.ReplyKeyboardMarkup(True, True)
-        keyboard.row("✅ ❌ Запустить/остановить", "🧩 Обновить файлы")
+        keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
         keyboard.row("💬 Посмотреть логи")
         bot.send_message(message.chat.id, response, reply_markup=keyboard)
     else:
