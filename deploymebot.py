@@ -7,8 +7,9 @@ import os
 import zipfile
 import json
 import re
+import time
 from backend import preparefiles
-from dmbhelper import SQLighter, add_new_bot
+from dmbhelper import SQLighter
 
 
 MODE = config.mode
@@ -40,20 +41,21 @@ def _(message):
     keyboard.row('Попробовать')
     bot.send_message(message.chat.id, response, reply_markup=keyboard)
     db = SQLighter(DB)
-    if not db.select(message.from_user.id):
-        db.insert(message.from_user.id)
+    if not db.get_user(message.from_user.id):
+        db.insert_user(message.from_user.id)
 
 
 @bot.message_handler(content_types=['document'])
 def _(message):
     try:
+        user_id = message.from_user.id
         file_name = re.sub(r'[^A-z0-9\.]', '', message.document.file_name)
         bot_name, _ = os.path.splitext(file_name)
         downloaded_file = bot.download_file(bot.get_file(message.document.file_id).file_path)
         if message.document.mime_type != "application/zip":
             bot.reply_to(message, "Файл должен быть формата zip!")
             return
-        path = './download/{}/'.format(message.from_user.id)
+        path = './download/{}/'.format(user_id)
         if not os.path.exists(path):
             os.makedirs(path)
         path += file_name
@@ -77,21 +79,21 @@ def _(message):
             os.remove(path)
             return
         db = SQLighter(DB)
-        user = db.select(message.from_user.id)
-        bots, changes = add_new_bot(user, bot_name)
-        if changes == 1:
-            db.update(message.from_user.id, 'bots', bots)
-        if changes in range(2):
-            preparefiles.deploy(message.from_user.id, file_name, os.getcwd())
-            os.remove(path)
-            bot.reply_to(message, "Файл принят!")
-        elif changes == 2:
-            response = "Максимальное количество ботов: {}. Больше ботов создать нельзя!".format(BOTS_COUNT)
-            bot.reply_to(message, response)
+        bots = db.get_bots(user_id)
+        exist = False
+        for item in bots:
+            if bot_name in item:
+                db.update_bot(item[0], status=False)
+                exist = True
+        if not exist:
+            bot_id = int(time.time())
+            db.insert_bot(bot_id, bot_name, False, 0, user_id)
+        preparefiles.deploy(user_id, file_name, os.getcwd())
+        bot.reply_to(message, "Файл принят!")
     except Exception as e:
         bot.reply_to(message, "Произошла ошибка... Попробуйте еще раз.")
-        if not db.select(message.from_user.id):
-            db.insert(message.from_user.id)
+        if not db.get_user(message.from_user.id):
+            db.insert_user(message.from_user.id)
         print("error: ", e)
 
 
@@ -109,18 +111,7 @@ def _(message):
         bot.send_message(message.chat.id, response,
                          reply_markup=keyboard, parse_mode='html')
     elif message.text == "🔐 Панель управления":
-        db = SQLighter(DB)
-        user = db.select(message.from_user.id)
-        bots = json.loads(user[2])
-        response = 'Ваши боты:'
-        for item in bots.keys():
-            status = 'запущен'
-            if not bots[item]['status']:
-                status = 'не запущен'
-            response += """
----
-Статус {}: {}
-Осталось времени: {}""".format(item, status, bots[item]['expire_time'])
+        response = "Панель управления"
         keyboard = types.ReplyKeyboardMarkup(True, True)
         keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
         keyboard.row("💬 Посмотреть логи")
