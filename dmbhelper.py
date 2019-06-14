@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
 import sqlite3
-import config
-import json
-
-
-BOTS_COUNT = config.bots_count
 
 
 class SQLighter:
@@ -12,44 +7,51 @@ class SQLighter:
     def __init__(self, database):
         self.connection = sqlite3.connect(database)
         self.cursor = self.connection.cursor()
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS users (id integer, balance real, bots text)")
+        self.cursor.execute("PRAGMA foreign_keys=on")
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS bots (
+            id INTEGER PRIMARY KEY, name TEXT NOT NULL, status INTEGER, expire INTEGER,
+            owner INTEGER NOT NULL, FOREIGN KEY (owner) REFERENCES users(id))""")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, balance REAL)")
 
-    def select_all(self):
+    def select_all(self, table):
         with self.connection:
-            return self.cursor.execute("SELECT * FROM users").fetchall()
+            sql = "SELECT * FROM {}".format(table)
+            return self.cursor.execute(sql).fetchall()
 
-    def select(self, user_id):
+    def get_user(self, user_id):
         with self.connection:
             result = self.cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchall()
             if result:
                 return result[0]
             return None
 
-    def insert(self, user_id):
+    def get_bots(self, user_id):
         with self.connection:
-            self.cursor.execute("INSERT INTO users VALUES (?, 0.0, '{}')", (user_id,))
+            return self.cursor.execute("SELECT * FROM bots WHERE owner = ?", (user_id,)).fetchall()
+
+    def insert_user(self, user_id):
+        with self.connection:
+            self.cursor.execute("INSERT INTO users VALUES (?, 0)", (user_id,))
             self.connection.commit()
 
-    def update(self, user_id, field, value):
+    def insert_bot(self, *bot):
         with self.connection:
-            sql = "UPDATE users SET {}=? WHERE id=?".format(field)
-            self.cursor.execute(sql, (value, user_id))
+            self.cursor.execute("INSERT INTO bots VALUES (?, ?, ?, ?, ?)", bot)
+            self.connection.commit()
+
+    def update_user(self, user_id, **values):
+        with self.connection:
+            for field in values.keys():
+                sql = "UPDATE users SET {}=? WHERE id=?".format(field)
+                self.cursor.execute(sql, (values[field], user_id))
+            self.connection.commit()
+
+    def update_bot(self, bot_id, **values):
+        with self.connection:
+            for field in values.keys():
+                sql = "UPDATE bots SET {}=? WHERE id=?".format(field)
+                self.cursor.execute(sql, (values[field], bot_id))
             self.connection.commit()
 
     def __del__(self):
         self.connection.close()
-
-
-def add_new_bot(user, bot_name):
-    bots = json.loads(user[2])
-    code = 0
-    if bot_name not in bots.keys():
-        if len(bots.keys()) < BOTS_COUNT:
-            bots[bot_name] = {}
-            bots[bot_name]['path'] = './bots/{}/{}'.format(user[0], bot_name)
-            bots[bot_name]['status'] = False
-            bots[bot_name]['expire_time'] = 0
-            code = 1
-        else:
-            code = 2
-    return json.dumps(bots), code
