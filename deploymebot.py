@@ -17,6 +17,7 @@ TOKEN = config.token
 PROXYLIST = config.proxy
 DB = config.db
 BOTS_COUNT = config.bots_count
+COMMANDS = config.commands
 
 
 bot = telebot.TeleBot(TOKEN)
@@ -97,6 +98,39 @@ def _(message):
         print("error: ", e)
 
 
+@bot.message_handler(regexp='/bot_(\w+)_(\w+)')
+def _(message):
+    if re.search('/bot_(\w+)_(\w+)', message.text):
+        reg = re.search('/bot_(\w+)_(\w+)', message.text)
+        command = reg.group(1)
+        bot_id = reg.group(2)
+        if command in COMMANDS:
+            db = SQLighter(DB)
+            bots = db.get_bots(message.from_user.id)
+            path = ''
+            for item in bots:
+                print(item)
+                if str(item[0]) == bot_id:
+                    path = './bots/{}/{}/'.format(message.from_user.id, item[1])
+                    break
+            if path:
+                preparefiles.controlbot(path, command)
+            else:
+                response = "<i>Нет такого бота...</i>"
+                keyboard = types.ReplyKeyboardMarkup(True, True)
+                keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
+                keyboard.row("💬 О проекте")
+                bot.send_message(message.chat.id, response,
+                    reply_markup=keyboard, parse_mode='html')
+        else:
+            response = "<i>Forbidden</i>"
+            keyboard = types.ReplyKeyboardMarkup(True, True)
+            keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
+            keyboard.row("💬 О проекте")
+            bot.send_message(message.chat.id, response,
+                reply_markup=keyboard, parse_mode='html')
+
+
 @bot.message_handler(content_types=["text"])
 def _(message):
     if message.text == "⬇️ Загрузить бота":
@@ -109,19 +143,61 @@ def _(message):
         keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
         keyboard.row("💬 О проекте")
         bot.send_message(message.chat.id, response,
-                         reply_markup=keyboard, parse_mode='html')
+            reply_markup=keyboard, parse_mode='html')
     elif message.text == "🔐 Панель управления":
-        response = "Панель управления"
+        db = SQLighter(DB)
+        bots = db.get_bots(message.from_user.id)
+        response = ""
+        for item in bots:
+            if item[2]:
+                status = "Запущен"
+            else:
+                status = "Выключен"
+            response += """
+<b>{}</b> [<i>{}</i>]
+ID бота:<code> {}</code>
+Осталось времени: <i>{}</i>\n""".format(item[1], status, item[0], item[3])
+        if not response:
+            response = "\n<i>Пусто...</i>"
+        response = "Ваши боты:\n" + response
         keyboard = types.ReplyKeyboardMarkup(True, True)
         keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
         keyboard.row("💬 Посмотреть логи")
-        bot.send_message(message.chat.id, response, reply_markup=keyboard)
+        bot.send_message(message.chat.id, response,
+            reply_markup=keyboard, parse_mode='html')
+    elif message.text == "🚀 Запуск/остановка":
+        response = """Управление ботом:
+
+Запустить - /bot_start_{id}
+Остановить - /bot_stop_{id}
+Перезапустить - /bot_restart_{id}
+"""
+        keyboard = types.ReplyKeyboardMarkup(True, True)
+        keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
+        keyboard.row("💬 Посмотреть логи")
+        bot.send_message(message.chat.id, response,
+            reply_markup=keyboard, parse_mode='html')
+    elif message.text == "🧩 Обновить файлы":
+        response = "Обновить файлы"
+        keyboard = types.ReplyKeyboardMarkup(True, True)
+        keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
+        keyboard.row("💬 Посмотреть логи")
+        bot.send_message(message.chat.id, response,
+            reply_markup=keyboard, parse_mode='html')
+    elif message.text == "💬 Посмотреть логи":
+        response = "Посмотреть логи:\n\n/bot_logs_{id}"
+        keyboard = types.ReplyKeyboardMarkup(True, True)
+        keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
+        keyboard.row("💬 Посмотреть логи")
+        bot.send_message(message.chat.id, response,
+            reply_markup=keyboard, parse_mode='html')
     else:
         response = 'Выберите интересующий Вас элемент меню:'
         keyboard = types.ReplyKeyboardMarkup(True, True)
         keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
         keyboard.row("💬 О проекте")
-        bot.send_message(message.chat.id, response, reply_markup=keyboard)
+        bot.send_message(message.chat.id, response,
+            reply_markup=keyboard)
 
 
 if __name__ == '__main__':
