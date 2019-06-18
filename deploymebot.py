@@ -44,6 +44,17 @@ def _(message):
     db = SQLighter(DB)
     if not db.get_user(message.from_user.id):
         db.insert_user(message.from_user.id)
+        if re.search('/start (\w+)', message.text):
+            ref = re.search('/start (\w+)', message.text).group(1)
+            db = SQLighter(DB)
+            user = db.get_ref(ref)
+            if user:
+                db.update_user(user[0], ref_count=user[3]+1)
+                try:
+                    response = "Похоже, кто-то пришел к нам по вашей ссылке. Спасибо."
+                    bot.send_message(user[0], response)
+                except Exception as e:
+                    print(e)
 
 
 @bot.message_handler(content_types=['document'])
