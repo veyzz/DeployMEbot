@@ -43,18 +43,19 @@ def _(message):
     bot.send_message(message.chat.id, response, reply_markup=keyboard)
     db = SQLighter(DB)
     if not db.get_user(message.from_user.id):
-        db.insert_user(message.from_user.id)
         if re.search('/start (\w+)', message.text):
             ref = re.search('/start (\w+)', message.text).group(1)
-            db = SQLighter(DB)
             user = db.get_ref(ref)
             if user:
+                db.insert_user(message.from_user.id, user[0])
                 db.update_user(user[0], ref_count=user[3]+1)
                 try:
                     response = "Похоже, кто-то пришел к нам по вашей ссылке. Спасибо."
                     bot.send_message(user[0], response)
                 except Exception as e:
                     print(e)
+    if not db.get_user(message.from_user.id):
+        db.insert_user(message.from_user.id)
 
 
 @bot.message_handler(content_types=['document'])

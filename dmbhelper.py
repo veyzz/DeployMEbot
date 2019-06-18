@@ -14,7 +14,7 @@ class SQLighter:
             owner INTEGER NOT NULL, FOREIGN KEY (owner) REFERENCES users(id))""")
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY, balance REAL, ref_link TEXT, ref_count INTEGER,
-            reg_date INTEGER)""")
+            invited_by INTEGER, requirement REAL, reg_date INTEGER)""")
 
     def select_all(self, table):
         with self.connection:
@@ -39,11 +39,12 @@ class SQLighter:
         with self.connection:
             return self.cursor.execute("SELECT * FROM bots WHERE owner = ?", (user_id,)).fetchall()
 
-    def insert_user(self, user_id):
+    def insert_user(self, user_id, by_id=None):
         with self.connection:
             ref = convert_base(user_id, 36)
             reg_date = int(time.time())
-            self.cursor.execute("INSERT INTO users VALUES (?, 0, ?, 0, ?)", (user_id, ref, reg_date))
+            self.cursor.execute("INSERT INTO users VALUES (?, 0, ?, 0, ?, 10, ?)",
+                (user_id, ref, by_id, reg_date))
             self.connection.commit()
 
     def insert_bot(self, *bot):
