@@ -35,8 +35,8 @@ class WebhookServer:
 def _(message):
     response = '''Привет! Этот бот позволяет развернуть Вашего бота
 на сервере, чтобы держать его запущенным 24/7.'''
-    keyboard = types.ReplyKeyboardMarkup(True, True)
-    keyboard.row('Попробовать')
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+    keyboard.row('✨Попробовать✨')
     bot.send_message(message.chat.id, response, reply_markup=keyboard)
     db = SQLighter(DB)
     if not db.get_user(message.from_user.id):
@@ -57,14 +57,17 @@ def _(message):
 
 @bot.message_handler(content_types=['document'])
 def _(message):
+    mes = None
     try:
+        mes = bot.reply_to(message, "Обрабатываем...")
         user_id = message.from_user.id
         file_name = re.sub(r'[^A-z0-9\.]', '', message.document.file_name)
         bot_name, _ = os.path.splitext(file_name)
         downloaded_file = bot.download_file(
             bot.get_file(message.document.file_id).file_path)
         if message.document.mime_type != "application/zip":
-            bot.reply_to(message, "Файл должен быть формата zip!")
+            bot.edit_message_text("Файл должен быть формата zip!", mes.chat.id,
+                                  mes.message_id)
             return
         path = './download/{}/'.format(user_id)
         if not os.path.exists(path):
@@ -82,12 +85,14 @@ def _(message):
                 req = True
             if 'tostart.txt' in element:
                 st = True
+        err = ""
         if not req:
-            bot.reply_to(message, "Вы забыли файл requirements.txt")
+            err += "Вы забыли файл requirements.txt\n"
         if not st:
-            bot.reply_to(message, "Вы забыли файл tostart.txt")
+            err += "Вы забыли файл tostart.txt\n"
         if not (req and st):
             os.remove(path)
+            bot.edit_message_text(err, mes.chat.id, mes.message_id)
             return
         db = SQLighter(DB)
         bots = db.get_bots(user_id)
@@ -100,9 +105,13 @@ def _(message):
             bot_id = int(time.time())
             db.insert_bot(bot_id, bot_name, False, 0, user_id)
         preparefiles.deploy(user_id, file_name, os.getcwd())
-        bot.reply_to(message, "Файл принят!")
+        bot.edit_message_text("Файл принят!", mes.chat.id, mes.message_id)
     except Exception as e:
-        bot.reply_to(message, "Произошла ошибка... Попробуйте еще раз.")
+        if mes:
+            bot.edit_message_text("Произошла ошибка... Попробуйте еще раз.",
+                                  mes.chat.id, mes.message_id)
+        else:
+            bot.reply_to(message, "Произошла ошибка... Попробуйте еще раз.")
         if not db.get_user(message.from_user.id):
             db.insert_user(message.from_user.id)
         print("error: ", e)
@@ -128,18 +137,20 @@ def _(message):
                 preparefiles.controlbot(path, command)
             else:
                 response = "<i>Нет такого бота...</i>"
-                keyboard = types.ReplyKeyboardMarkup(True, True)
+                keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,
+                                                     row_width=3)
                 keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
-                keyboard.row("💬 О проекте")
+                keyboard.row("💻 О проекте")
                 bot.send_message(message.chat.id,
                                  response,
                                  reply_markup=keyboard,
                                  parse_mode='html')
         else:
             response = "<i>Forbidden</i>"
-            keyboard = types.ReplyKeyboardMarkup(True, True)
+            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,
+                                                 row_width=3)
             keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
-            keyboard.row("💬 О проекте")
+            keyboard.row("💻 О проекте")
             bot.send_message(message.chat.id,
                              response,
                              reply_markup=keyboard,
@@ -154,9 +165,9 @@ def _(message):
 - <code>tostart.txt</code>, в котором указано, какой файл нам нужно запускать
 <b>Важно! У нас установлен интерпретатор Python 3.5.2,
 Позаботьтесь о совместимости Вашего кода!</b>'''
-        keyboard = types.ReplyKeyboardMarkup(True, True)
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
-        keyboard.row("💬 О проекте")
+        keyboard.row("💻 О проекте")
         bot.send_message(message.chat.id,
                          response,
                          reply_markup=keyboard,
@@ -177,9 +188,10 @@ ID бота:<code> {}</code>
         if not response:
             response = "\n<i>Пусто...</i>"
         response = "Ваши боты:\n" + response
-        keyboard = types.ReplyKeyboardMarkup(True, True)
-        keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
-        keyboard.row("💬 Посмотреть логи")
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+        keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
+        keyboard.row("🚀 Запуск/остановка", "💬 Посмотреть логи")
+        keyboard.row("💥 Удалить бота", "💻 О проекте")
         bot.send_message(message.chat.id,
                          response,
                          reply_markup=keyboard,
@@ -191,36 +203,59 @@ ID бота:<code> {}</code>
 Остановить - /bot_stop_{id}
 Перезапустить - /bot_restart_{id}
 """
-        keyboard = types.ReplyKeyboardMarkup(True, True)
-        keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
-        keyboard.row("💬 Посмотреть логи")
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+        keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
+        keyboard.row("🚀 Запуск/остановка", "💬 Посмотреть логи")
+        keyboard.row("💥 Удалить бота", "💻 О проекте")
         bot.send_message(message.chat.id,
                          response,
                          reply_markup=keyboard,
                          parse_mode='html')
     elif message.text == "🧩 Обновить файлы":
         response = "Обновить файлы"
-        keyboard = types.ReplyKeyboardMarkup(True, True)
-        keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
-        keyboard.row("💬 Посмотреть логи")
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+        keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
+        keyboard.row("🚀 Запуск/остановка", "💬 Посмотреть логи")
+        keyboard.row("💥 Удалить бота", "💻 О проекте")
+        bot.send_message(message.chat.id,
+                         response,
+                         reply_markup=keyboard,
+                         parse_mode='html')
+    elif message.text == "💥 Удалить бота":
+        response = """Удалить бота
+
+/bot_remove_{id}
+
+<b>Внимание! После отправки команды бот окончательно будет удален.</b>"""
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+        keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
+        keyboard.row("🚀 Запуск/остановка", "💬 Посмотреть логи")
+        keyboard.row("💥 Удалить бота", "💻 О проекте")
         bot.send_message(message.chat.id,
                          response,
                          reply_markup=keyboard,
                          parse_mode='html')
     elif message.text == "💬 Посмотреть логи":
         response = "Посмотреть логи:\n\n/bot_logs_{id}"
-        keyboard = types.ReplyKeyboardMarkup(True, True)
-        keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
-        keyboard.row("💬 Посмотреть логи")
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+        keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
+        keyboard.row("🚀 Запуск/остановка", "💬 Посмотреть логи")
+        keyboard.row("💥 Удалить бота", "💻 О проекте")
         bot.send_message(message.chat.id,
                          response,
                          reply_markup=keyboard,
                          parse_mode='html')
+    elif message.text == "💻 О проекте":
+        response = 'О проекте'
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+        keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
+        keyboard.row("💻 О проекте")
+        bot.send_message(message.chat.id, response, reply_markup=keyboard)
     else:
         response = 'Выберите интересующий Вас элемент меню:'
-        keyboard = types.ReplyKeyboardMarkup(True, True)
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
-        keyboard.row("💬 О проекте")
+        keyboard.row("💻 О проекте")
         bot.send_message(message.chat.id, response, reply_markup=keyboard)
 
 
