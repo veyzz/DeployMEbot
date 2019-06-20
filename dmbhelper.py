@@ -4,14 +4,14 @@ import time
 
 
 class SQLighter:
-
     def __init__(self, database):
         self.connection = sqlite3.connect(database)
         self.cursor = self.connection.cursor()
         self.cursor.execute("PRAGMA foreign_keys=on")
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS bots (
             id INTEGER PRIMARY KEY, name TEXT NOT NULL, status INTEGER, expire INTEGER,
-            owner INTEGER NOT NULL, FOREIGN KEY (owner) REFERENCES users(id))""")
+            owner INTEGER NOT NULL, FOREIGN KEY (owner) REFERENCES users(id))"""
+                            )
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY, balance REAL, ref_link TEXT, ref_count INTEGER,
             invited_by INTEGER, requirement REAL, reg_date INTEGER)""")
@@ -23,27 +23,31 @@ class SQLighter:
 
     def get_user(self, user_id):
         with self.connection:
-            result = self.cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchall()
+            result = self.cursor.execute("SELECT * FROM users WHERE id = ?",
+                                         (user_id, )).fetchall()
             if result:
                 return result[0]
             return None
 
     def get_ref(self, ref):
         with self.connection:
-            result = self.cursor.execute("SELECT * FROM users WHERE ref_link = ?", (ref,)).fetchall()
+            result = self.cursor.execute(
+                "SELECT * FROM users WHERE ref_link = ?", (ref, )).fetchall()
             if result:
                 return result[0]
             return None
 
     def get_bots(self, user_id):
         with self.connection:
-            return self.cursor.execute("SELECT * FROM bots WHERE owner = ?", (user_id,)).fetchall()
+            return self.cursor.execute("SELECT * FROM bots WHERE owner = ?",
+                                       (user_id, )).fetchall()
 
     def insert_user(self, user_id, by_id=None):
         with self.connection:
-            ref = convert_base(user_id, 36)
+            ref = get_ref_code(user_id)
             reg_date = int(time.time())
-            self.cursor.execute("INSERT INTO users VALUES (?, 0, ?, 0, ?, 10, ?)",
+            self.cursor.execute(
+                "INSERT INTO users VALUES (?, 0, ?, 0, ?, 10, ?)",
                 (user_id, ref, by_id, reg_date))
             self.connection.commit()
 
@@ -70,7 +74,9 @@ class SQLighter:
         self.connection.close()
 
 
-def convert_base(num, to_base=10, from_base=10):
+def get_ref_code(num):
+    from_base = 10
+    to_base = 36
     if isinstance(num, str):
         n = int(num, from_base)
     else:
@@ -79,4 +85,4 @@ def convert_base(num, to_base=10, from_base=10):
     if n < to_base:
         return alphabet[n]
     else:
-        return convert_base(n // to_base, to_base) + alphabet[n % to_base]
+        return get_ref_code(n // to_base) + alphabet[n % to_base]

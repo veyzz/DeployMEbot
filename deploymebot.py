@@ -11,7 +11,6 @@ import time
 from backend import preparefiles
 from dmbhelper import SQLighter
 
-
 MODE = config.mode
 TOKEN = config.token
 PROXYLIST = config.proxy
@@ -19,12 +18,10 @@ DB = config.db
 BOTS_COUNT = config.bots_count
 COMMANDS = config.commands
 
-
 bot = telebot.TeleBot(TOKEN)
 
 
 class WebhookServer:
-
     @cherrypy.expose
     def index(self):
         length = int(cherrypy.request.headers['content-length'])
@@ -48,7 +45,7 @@ def _(message):
             user = db.get_ref(ref)
             if user:
                 db.insert_user(message.from_user.id, user[0])
-                db.update_user(user[0], ref_count=user[3]+1)
+                db.update_user(user[0], ref_count=user[3] + 1)
                 try:
                     response = "Похоже, кто-то пришел к нам по вашей ссылке. Спасибо."
                     bot.send_message(user[0], response)
@@ -64,7 +61,8 @@ def _(message):
         user_id = message.from_user.id
         file_name = re.sub(r'[^A-z0-9\.]', '', message.document.file_name)
         bot_name, _ = os.path.splitext(file_name)
-        downloaded_file = bot.download_file(bot.get_file(message.document.file_id).file_path)
+        downloaded_file = bot.download_file(
+            bot.get_file(message.document.file_id).file_path)
         if message.document.mime_type != "application/zip":
             bot.reply_to(message, "Файл должен быть формата zip!")
             return
@@ -123,7 +121,8 @@ def _(message):
             for item in bots:
                 print(item)
                 if str(item[0]) == bot_id:
-                    path = './bots/{}/{}/'.format(message.from_user.id, item[1])
+                    path = './bots/{}/{}/'.format(message.from_user.id,
+                                                  item[1])
                     break
             if path:
                 preparefiles.controlbot(path, command)
@@ -132,15 +131,19 @@ def _(message):
                 keyboard = types.ReplyKeyboardMarkup(True, True)
                 keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
                 keyboard.row("💬 О проекте")
-                bot.send_message(message.chat.id, response,
-                    reply_markup=keyboard, parse_mode='html')
+                bot.send_message(message.chat.id,
+                                 response,
+                                 reply_markup=keyboard,
+                                 parse_mode='html')
         else:
             response = "<i>Forbidden</i>"
             keyboard = types.ReplyKeyboardMarkup(True, True)
             keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
             keyboard.row("💬 О проекте")
-            bot.send_message(message.chat.id, response,
-                reply_markup=keyboard, parse_mode='html')
+            bot.send_message(message.chat.id,
+                             response,
+                             reply_markup=keyboard,
+                             parse_mode='html')
 
 
 @bot.message_handler(content_types=["text"])
@@ -154,8 +157,10 @@ def _(message):
         keyboard = types.ReplyKeyboardMarkup(True, True)
         keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
         keyboard.row("💬 О проекте")
-        bot.send_message(message.chat.id, response,
-            reply_markup=keyboard, parse_mode='html')
+        bot.send_message(message.chat.id,
+                         response,
+                         reply_markup=keyboard,
+                         parse_mode='html')
     elif message.text == "🔐 Панель управления":
         db = SQLighter(DB)
         bots = db.get_bots(message.from_user.id)
@@ -175,8 +180,10 @@ ID бота:<code> {}</code>
         keyboard = types.ReplyKeyboardMarkup(True, True)
         keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
         keyboard.row("💬 Посмотреть логи")
-        bot.send_message(message.chat.id, response,
-            reply_markup=keyboard, parse_mode='html')
+        bot.send_message(message.chat.id,
+                         response,
+                         reply_markup=keyboard,
+                         parse_mode='html')
     elif message.text == "🚀 Запуск/остановка":
         response = """Управление ботом:
 
@@ -187,29 +194,34 @@ ID бота:<code> {}</code>
         keyboard = types.ReplyKeyboardMarkup(True, True)
         keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
         keyboard.row("💬 Посмотреть логи")
-        bot.send_message(message.chat.id, response,
-            reply_markup=keyboard, parse_mode='html')
+        bot.send_message(message.chat.id,
+                         response,
+                         reply_markup=keyboard,
+                         parse_mode='html')
     elif message.text == "🧩 Обновить файлы":
         response = "Обновить файлы"
         keyboard = types.ReplyKeyboardMarkup(True, True)
         keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
         keyboard.row("💬 Посмотреть логи")
-        bot.send_message(message.chat.id, response,
-            reply_markup=keyboard, parse_mode='html')
+        bot.send_message(message.chat.id,
+                         response,
+                         reply_markup=keyboard,
+                         parse_mode='html')
     elif message.text == "💬 Посмотреть логи":
         response = "Посмотреть логи:\n\n/bot_logs_{id}"
         keyboard = types.ReplyKeyboardMarkup(True, True)
         keyboard.row("🚀 Запуск/остановка", "🧩 Обновить файлы")
         keyboard.row("💬 Посмотреть логи")
-        bot.send_message(message.chat.id, response,
-            reply_markup=keyboard, parse_mode='html')
+        bot.send_message(message.chat.id,
+                         response,
+                         reply_markup=keyboard,
+                         parse_mode='html')
     else:
         response = 'Выберите интересующий Вас элемент меню:'
         keyboard = types.ReplyKeyboardMarkup(True, True)
         keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
         keyboard.row("💬 О проекте")
-        bot.send_message(message.chat.id, response,
-            reply_markup=keyboard)
+        bot.send_message(message.chat.id, response, reply_markup=keyboard)
 
 
 if __name__ == '__main__':
