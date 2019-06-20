@@ -21,6 +21,7 @@ def controlbot(path, command):
     command - одна из 4 команд (есть в config.py)
     start, stop, restart - аргументы для bot.sh
     logs - для вывода содержимого path+'log/main.log'
+    remove - запускать процесс удаления (backend/removefiles.sh)
     эта функция должна возвращать текст - результат работы
     примеры: return 'Бот запущен!'
     return mainlog"""
