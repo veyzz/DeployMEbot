@@ -10,10 +10,11 @@ import re
 import time
 from backend import preparefiles
 from dmbhelper import SQLighter
+import proxy
 
 MODE = config.mode
 TOKEN = config.token
-PROXYLIST = config.proxy
+PROXYLIST = proxy.proxy
 DB = config.db
 BOTS_COUNT = config.bots_count
 COMMANDS = config.commands
@@ -268,6 +269,7 @@ if __name__ == '__main__':
         })
         cherrypy.quickstart(WebhookServer(), '/', {'/': {}})
     elif MODE == 0:
-        # Если нужно прокси (вписать свои)
-        apihelper.proxy = PROXYLIST
+        # Если нужно прокси (вписать свои) в файл proxy.py
+        if PROXYLIST:
+            apihelper.proxy = PROXYLIST
         bot.polling(none_stop=True)
