@@ -1,7 +1,12 @@
 #!/bin/bash
-exec 1>installation.txt
-exec 2>installation.txt
 # This script prepare file structure for new user's bot
+
+# write stdout and strerr to file
+log_file=installation$(date +%s)$RANDOM.log
+exec 1>$log_file
+exec 2>$log_file
+
+# read args
 user_id=$1
 arch=$2
 pathtobot=$3
@@ -17,7 +22,7 @@ if ! [ -d $pathtobot/bots/$user_id/$bot_name ]; then
     mkdir $pathtobot/bots/$user_id/$bot_name 
 fi
 echo "Cleaning bot folder..."
-rm -rf $pathtobot/bots/$user_id/$bot_name/*
+rm -rfv $pathtobot/bots/$user_id/$bot_name/*
 
 # unzip files
 echo "Unpacking $arch"
@@ -33,7 +38,7 @@ source $pathtobot/bots/$user_id/$bot_name/venv/bin/activate
 echo "Installing essensial modules..."
 pip3 install -r $pathtobot/bots/$user_id/$bot_name/requirements.txt
 echo "Removing trash directory..."
-rm -rf $pathtobot/bots/$user_id/$bot_name/$dr
+rm -rfv $pathtobot/bots/$user_id/$bot_name/$dr
 echo "Creating log directory..."
 mkdir $pathtobot/bots/$user_id/$bot_name/log
 
@@ -41,6 +46,6 @@ mkdir $pathtobot/bots/$user_id/$bot_name/log
 echo "Creating control-file..."
 cat $pathtobot/backend/templates/bot > $pathtobot/bots/$user_id/$bot_name/bot.sh
 
-mv installation.txt $pathtobot/bots/$user_id/$bot_name/log/
+mv $log_file $pathtobot/bots/$user_id/$bot_name/log/installation.log
 echo "Done"
 exit 0
