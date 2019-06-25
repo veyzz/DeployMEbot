@@ -15,7 +15,7 @@ def deploy(user_id, arch, path):
         return(1)
 
 
-def controlbot(bot_id, command, path)
+def controlbot(bot_id, command, path):
     """Принимает аргументы:
     bot_id - ID бота
     path - путь в папку с ботом (как и в deploy)
