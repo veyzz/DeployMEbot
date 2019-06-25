@@ -29,21 +29,13 @@ def controlbot(bot_id, command, path):
     эта функция должна возвращать текст - результат работы
     примеры: return 'Бот запущен!'
     return mainlog"""
+    print(bot_id, command, path)
     if command in ['start', 'stop', 'restart']:
-        sub = subprocess.run(
-            ["./backend/removefiles.sh",
-             str(bot_id), command, path],
-            stdout=sys.stdout)
-        if not sub.returncode:
-            print("ok")
-            return (0)
-        else:
-            return (sub.stderr)
-            return (1)
+        pass
     elif command == 'remove':
         sub = subprocess.run(
             ["./backend/removefiles.sh",
-             str(bot_id), command, path],
+             str(bot_id), path],
             stdout=sys.stdout)
         if not sub.returncode:
             print("ok")
@@ -52,16 +44,7 @@ def controlbot(bot_id, command, path):
             return (sub.stderr)
             return (1)
     elif command == 'logs':
-        sub = subprocess.run(
-            ["./backend/removefiles.sh",
-             str(bot_id), command, path],
-            stdout=sys.stdout)
-        if not sub.returncode:
-            print("ok")
-            return (0)
-        else:
-            return (sub.stderr)
-            return (1)
+        pass
 
 
 def main():
