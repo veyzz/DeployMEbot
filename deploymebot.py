@@ -106,7 +106,7 @@ def _(message):
         if not exist:
             bot_id = int(time.time())
             db.insert_bot(bot_id, bot_name, False, 0, user_id)
-        backend.deploy(user_id, file_name, PATH)
+        backend.deploy(user_id, file_name)
         bot.edit_message_text("Файл принят!", mes.chat.id, mes.message_id)
     except Exception as e:
         if mes:
@@ -130,12 +130,11 @@ def _(message):
             bots = db.get_bots(message.from_user.id)
             bot_name = ''
             for item in bots:
-                print(item)
                 if str(item[0]) == bot_id:
                     bot_name = item[1]
                     break
             if bot_name:
-                backend.controlbot(bot_id, command, PATH)
+                backend.controlbot(bot_id, command)
             else:
                 response = "<i>Нет такого бота...</i>"
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,
@@ -202,7 +201,6 @@ ID бота:<code> {}</code>
 
 Запустить - /bot_start_{id}
 Остановить - /bot_stop_{id}
-Перезапустить - /bot_restart_{id}
 """
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
