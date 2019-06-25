@@ -15,14 +15,13 @@ def deploy(user_id, arch, path):
         return(1)
 
 
-def controlbot(user_id, bot_name, command, path)
+def controlbot(bot_id, command, path)
     """Принимает аргументы:
-    user_id - ID пользователя
-    bot_name - имя бота
+    bot_id - ID бота
     path - путь в папку с ботом (как и в deploy)
     command - одна из 4 команд (есть в config.py)
     start, stop, restart - аргументы для bot.sh
-    logs - для вывода содержимого path+'log/main.log'
+    logs - для вывода содержимого 'log/main.log'
     remove - запускать процесс удаления (backend/removefiles.sh)
     эта функция должна возвращать текст - результат работы
     примеры: return 'Бот запущен!'
