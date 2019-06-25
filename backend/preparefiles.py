@@ -15,9 +15,11 @@ def deploy(user_id, arch, path):
         return(1)
 
 
-def controlbot(path, command):
+def controlbot(user_id, bot_name, command, path)
     """Принимает аргументы:
-    path - путь в папку с ботом (пример: ./bots/123/test/)
+    user_id - ID пользователя
+    bot_name - имя бота
+    path - путь в папку с ботом (как и в deploy)
     command - одна из 4 команд (есть в config.py)
     start, stop, restart - аргументы для bot.sh
     logs - для вывода содержимого path+'log/main.log'
