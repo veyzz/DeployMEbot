@@ -18,6 +18,7 @@ PROXYLIST = proxy.proxy
 DB = config.db
 BOTS_COUNT = config.bots_count
 COMMANDS = config.commands
+PATH = os.getcwd()
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -105,7 +106,7 @@ def _(message):
         if not exist:
             bot_id = int(time.time())
             db.insert_bot(bot_id, bot_name, False, 0, user_id)
-        preparefiles.deploy(user_id, file_name, os.getcwd())
+        preparefiles.deploy(user_id, file_name, PATH)
         bot.edit_message_text("Файл принят!", mes.chat.id, mes.message_id)
     except Exception as e:
         if mes:
@@ -127,15 +128,14 @@ def _(message):
         if command in COMMANDS:
             db = SQLighter(DB)
             bots = db.get_bots(message.from_user.id)
-            path = ''
+            bot_name = ''
             for item in bots:
                 print(item)
                 if str(item[0]) == bot_id:
-                    path = './bots/{}/{}/'.format(message.from_user.id,
-                                                  item[1])
+                    bot_name = item[1]
                     break
-            if path:
-                preparefiles.controlbot(path, command)
+            if bot_name:
+                preparefiles.controlbot(bot_id, command, PATH)
             else:
                 response = "<i>Нет такого бота...</i>"
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,
