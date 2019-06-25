@@ -42,6 +42,14 @@ class SQLighter:
             return self.cursor.execute("SELECT * FROM bots WHERE owner = ?",
                                        (user_id, )).fetchall()
 
+    def get_bot(self, bot_id):
+        with self.connection:
+            result = self.cursor.execute("SELECT * FROM bots WHERE id = ?",
+                                         (bot_id, )).fetchall()
+            if result:
+                return result[0]
+            return None
+
     def insert_user(self, user_id, by_id=None):
         with self.connection:
             ref = get_ref_code(user_id)
