@@ -8,7 +8,7 @@ import zipfile
 import json
 import re
 import time
-from backend import preparefiles
+import backend
 from dmbhelper import SQLighter
 import proxy
 
@@ -106,7 +106,7 @@ def _(message):
         if not exist:
             bot_id = int(time.time())
             db.insert_bot(bot_id, bot_name, False, 0, user_id)
-        preparefiles.deploy(user_id, file_name, PATH)
+        backend.deploy(user_id, file_name, PATH)
         bot.edit_message_text("Файл принят!", mes.chat.id, mes.message_id)
     except Exception as e:
         if mes:
@@ -135,7 +135,7 @@ def _(message):
                     bot_name = item[1]
                     break
             if bot_name:
-                preparefiles.controlbot(bot_id, command, PATH)
+                backend.controlbot(bot_id, command, PATH)
             else:
                 response = "<i>Нет такого бота...</i>"
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,
