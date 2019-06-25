@@ -1,6 +1,19 @@
 #!/bin/bash
-exec 1>removing.txt
-exec 2>removing.txt
 # This script removes all files from bot folder
-# except log folder
+
+# read args
+path=$1
+
+# check if exist this directory
+if ! [ -d $path ]; then
+    echo "This directory does not exist"
+    rm $log_file
+    exit 1
+fi
+
+# remove folder
+echo "Removing bot directory..."
+rm -rfv $path
+
+echo "Done"
 exit 0
