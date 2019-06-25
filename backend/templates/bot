@@ -1,6 +1,10 @@
 #!/bin/bash
-BOT_FILE=$(cat tostart.txt)
 CONTROL_BOT=$0
+path=$2
+if [[ -n "$path" ]]; then
+   cd $path
+fi
+BOT_FILE=$(cat tostart.txt)
 
 case "$1" in
     start)
@@ -27,7 +31,7 @@ case "$1" in
     ;;
     stop)
         if [ -e bot.pid ]; then
-            echo -n "Stopping bot"
+            echo "Stopping bot"
             if ( kill -TERM $(cat bot.pid) 2> /dev/null ); then
                 c=1
                 while [ "$c" -le 300 ]; do
@@ -52,9 +56,6 @@ case "$1" in
             exit 2
         fi
     ;;
-    restart)
-        bash $CONTROL_BOT stop && bash $CONTROL_BOT start || exit 1
-    ;;
     status)
         if [ -e bot.pid ]; then
             if ( kill -0 $(cat bot.pid) 2> /dev/null ); then
@@ -70,7 +71,7 @@ case "$1" in
         fi
     ;;
     *)
-        echo "Usage: ${0} {start|stop|restart|status}"
+        echo "Usage: ${0} {start|stop|status}"
         exit 3
 esac
 exit 0

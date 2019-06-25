@@ -2,14 +2,17 @@
 import subprocess  # safelly run bash scripts from python
 import sys  # redirect stdout
 from dmbhelper import SQLighter
+import os
+import config
+
+DB = config.db
+PATH = os.getcwd()
 
 
-def deploy(user_id, arch, path):
+def deploy(user_id, arch):
     # run bash script and redirect stdout
-    sub = subprocess.run(
-        ["./backend/preparefiles.sh",
-         str(user_id), arch, path],
-        stdout=sys.stdout)
+    file = "{}/backend/preparefiles.sh".format(PATH)
+    sub = subprocess.run([file, str(user_id), arch, PATH], stdout=sys.stdout)
     if not sub.returncode:
         print("ok")
         return (0)
@@ -18,7 +21,7 @@ def deploy(user_id, arch, path):
         return (1)
 
 
-def controlbot(bot_id, command, path):
+def controlbot(bot_id, command):
     """Принимает аргументы:
     bot_id - ID бота
     path - путь в папку с ботом (как и в deploy)
@@ -29,14 +32,26 @@ def controlbot(bot_id, command, path):
     эта функция должна возвращать текст - результат работы
     примеры: return 'Бот запущен!'
     return mainlog"""
-    print(bot_id, command, path)
-    if command in ['start', 'stop', 'restart']:
-        pass
+    db = SQLighter(DB)
+    bot = db.get_bot(bot_id)
+    path = "{}/bots/{}/{}".format(PATH, bot[4], bot[1])
+    if command in ['start', 'stop']:
+        file = "{}/bot.sh".format(path)
+        sub = subprocess.run([file, command, path], stdout=sys.stdout)
+        stat = subprocess.run([file, 'status', path], stdout=sys.stdout)
+        if stat.returncode == 4:
+            db.update_bot(bot_id, status=1)
+        elif stat.returncode == 5:
+            db.update_bot(bot_id, status=0)
+        if not sub.returncode:
+            print("ok")
+            return (0)
+        else:
+            return (sub.stderr)
+            return (1)
     elif command == 'remove':
-        sub = subprocess.run(
-            ["./backend/removefiles.sh",
-             str(bot_id), path],
-            stdout=sys.stdout)
+        file = "{}/backend/removefiles.sh".format(PATH)
+        sub = subprocess.run([file, str(bot_id), PATH], stdout=sys.stdout)
         if not sub.returncode:
             print("ok")
             return (0)

@@ -12,7 +12,6 @@ echo "DELETE FROM bots WHERE id = $bot_id" | sqlite3 $path/deploymebot.db
 user_id=$(echo $bot | awk -F'|' '{print $5}')
 bot_name=$(echo $bot | awk -F'|' '{print $2}')
 bot_folder=$path/bots/$user_id/$bot_name
-echo $bot_folder
 
 # check if exist this directory
 if ! [ -d $bot_folder ]; then
@@ -21,8 +20,9 @@ if ! [ -d $bot_folder ]; then
 fi
 
 # remove folder
+$bot_folder/bot.sh stop $bot_folder
 echo "Removing bot directory..."
-rm -rfv $bot_folder
+rm -rf $bot_folder
 
 echo "Done"
 exit 0
