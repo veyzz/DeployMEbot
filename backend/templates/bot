@@ -18,16 +18,7 @@ case "$1" in
                 rm bot.pid
             fi
         fi
-        echo "Starting bot"
-        venv/bin/python3 $BOT_FILE >> log/bot.log 2>&1 &
-        PID=$!
-        if ( kill -0 $PID 2> /dev/null ); then
-            echo $PID > bot.pid
-            echo "Bot started"
-        else
-            echo "Bot could not start"
-            exit 1
-        fi
+        bash handler.sh &
     ;;
     stop)
         if [ -e bot.pid ]; then

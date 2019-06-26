@@ -1,0 +1,16 @@
+#!/bin/bash
+echo "Starting bot"
+BOT_FILE=$(cat tostart.txt)
+venv/bin/python3 $BOT_FILE >> log/bot.log 2>&1 &
+PID=$!
+if ( kill -0 $PID 2> /dev/null ); then
+    echo $PID > bot.pid
+    echo "Bot started"
+    wait $PID
+else
+    echo "Bot could not start"
+    exit 1
+fi
+
+echo "Bot stopped"
+exit 0
