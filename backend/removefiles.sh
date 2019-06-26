@@ -6,8 +6,8 @@ bot_id=$1
 path=$2
 
 # work with db
-bot=$(echo "SELECT * FROM bots WHERE id = $bot_id" | sqlite3 $path/deploymebot.db)
-echo "DELETE FROM bots WHERE id = $bot_id" | sqlite3 $path/deploymebot.db
+bot=$(echo "SELECT * FROM bots WHERE id = '$bot_id'" | sqlite3 $path/deploymebot.db)
+echo "DELETE FROM bots WHERE id = '$bot_id'" | sqlite3 $path/deploymebot.db
 
 user_id=$(echo $bot | awk -F'|' '{print $5}')
 bot_name=$(echo $bot | awk -F'|' '{print $2}')
