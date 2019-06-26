@@ -59,7 +59,15 @@ def controlbot(bot_id, command):
             return (sub.stderr)
             return (1)
     elif command == 'logs':
-        pass
+        file_path = "{}/log/bot.log".format(path)
+        if os.path.exists(file_path):
+            if os.path.isfile(file_path):
+                with open(file_path, 'r') as file:
+                    logs = file.read()
+                if logs:
+                    return logs
+        return "Пусто..."
+    return None
 
 
 def check_status(bot_id):

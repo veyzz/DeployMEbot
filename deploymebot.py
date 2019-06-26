@@ -137,7 +137,9 @@ def _(message):
                     bot_name = item[1]
                     break
             if bot_name:
-                backend.controlbot(bot_id, command)
+                result = backend.controlbot(bot_id, command)
+                if result:
+                    bot.send_message(message.from_user.id, result)
             else:
                 response = "<i>Нет такого бота...</i>"
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,
