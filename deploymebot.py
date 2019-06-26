@@ -8,6 +8,7 @@ import zipfile
 import json
 import re
 import time
+import random
 import backend
 from dmbhelper import SQLighter
 import proxy
@@ -19,6 +20,7 @@ DB = config.db
 BOTS_COUNT = config.bots_count
 COMMANDS = config.commands
 PATH = os.getcwd()
+EPOCH = config.epoch
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -104,7 +106,8 @@ def _(message):
                 db.update_bot(item[0], status=False)
                 exist = True
         if not exist:
-            bot_id = int(time.time())
+            bot_id = backend.get_hash(user_id) + backend.get_hash(
+                int(time.time() - EPOCH))
             db.insert_bot(bot_id, bot_name, False, 0, user_id)
         backend.deploy(user_id, file_name)
         bot.edit_message_text("Файл принят!", mes.chat.id, mes.message_id)
@@ -119,10 +122,10 @@ def _(message):
         print("error: ", e)
 
 
-@bot.message_handler(regexp='/bot_(\w+)_(\w+)')
+@bot.message_handler(regexp='/bot_(\w+) (\w+)')
 def _(message):
-    if re.search('/bot_(\w+)_(\w+)', message.text):
-        reg = re.search('/bot_(\w+)_(\w+)', message.text)
+    if re.search('/bot_(\w+) (\w+)', message.text):
+        reg = re.search('/bot_(\w+) (\w+)', message.text)
         command = reg.group(1)
         bot_id = reg.group(2)
         if command in COMMANDS:
@@ -177,13 +180,16 @@ def _(message):
         bots = db.get_bots(message.from_user.id)
         response = ""
         for item in bots:
-            if item[2]:
-                status = "Запущен"
-            else:
-                status = "Выключен"
+            try:
+                if backend.check_status(item[0]):
+                    status = "Запущен"
+                else:
+                    status = "Выключен"
+            except:
+                status = "Неизвестно"
             response += """
 <b>{}</b> [<i>{}</i>]
-ID бота:<code> {}</code>
+ID бота: <code>{}</code>
 Осталось времени: <i>{}</i>\n""".format(item[1], status, item[0], item[3])
         if not response:
             response = "\n<i>Пусто...</i>"
@@ -199,8 +205,8 @@ ID бота:<code> {}</code>
     elif message.text == "🚀 Запуск/остановка":
         response = """Управление ботом:
 
-Запустить - /bot_start_{id}
-Остановить - /bot_stop_{id}
+Запустить - /bot_start {id}
+Остановить - /bot_stop {id}
 """
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
@@ -223,7 +229,7 @@ ID бота:<code> {}</code>
     elif message.text == "💥 Удалить бота":
         response = """Удалить бота
 
-/bot_remove_{id}
+/bot_remove {id}
 
 <b>Внимание! После отправки команды бот окончательно будет удален.</b>"""
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
@@ -235,7 +241,7 @@ ID бота:<code> {}</code>
                          reply_markup=keyboard,
                          parse_mode='html')
     elif message.text == "💬 Посмотреть логи":
-        response = "Посмотреть логи:\n\n/bot_logs_{id}"
+        response = "Посмотреть логи:\n\n/bot_logs {id}"
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
         keyboard.row("🚀 Запуск/остановка", "💬 Посмотреть логи")
