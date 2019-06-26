@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sqlite3
 import time
+import backend
 
 
 class SQLighter:
@@ -9,7 +10,7 @@ class SQLighter:
         self.cursor = self.connection.cursor()
         self.cursor.execute("PRAGMA foreign_keys=on")
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS bots (
-            id INTEGER PRIMARY KEY, name TEXT NOT NULL, status INTEGER, expire INTEGER,
+            id TEXT PRIMARY KEY, name TEXT NOT NULL, status INTEGER, expire INTEGER,
             owner INTEGER NOT NULL, FOREIGN KEY (owner) REFERENCES users(id))"""
                             )
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS users (
@@ -52,7 +53,7 @@ class SQLighter:
 
     def insert_user(self, user_id, by_id=None):
         with self.connection:
-            ref = get_ref_code(user_id)
+            ref = backend.get_hash(user_id)
             reg_date = int(time.time())
             self.cursor.execute(
                 "INSERT INTO users VALUES (?, 0, ?, 0, ?, 10, ?)",
@@ -80,17 +81,3 @@ class SQLighter:
 
     def __del__(self):
         self.connection.close()
-
-
-def get_ref_code(num):
-    from_base = 10
-    to_base = 36
-    if isinstance(num, str):
-        n = int(num, from_base)
-    else:
-        n = int(num)
-    alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    if n < to_base:
-        return alphabet[n]
-    else:
-        return get_ref_code(n // to_base) + alphabet[n % to_base]

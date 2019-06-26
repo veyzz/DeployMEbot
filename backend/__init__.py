@@ -62,6 +62,33 @@ def controlbot(bot_id, command):
         pass
 
 
+def check_status(bot_id):
+    db = SQLighter(DB)
+    bot = db.get_bot(bot_id)
+    path = "{}/bots/{}/{}".format(PATH, bot[4], bot[1])
+    file = "{}/bot.sh".format(path)
+    stat = subprocess.run([file, 'status', path], stdout=sys.stdout)
+    if stat.returncode == 4:
+        db.update_bot(bot_id, status=1)
+    elif stat.returncode == 5:
+        db.update_bot(bot_id, status=0)
+    return 5 - stat.returncode
+
+
+def get_hash(num):
+    from_base = 10
+    to_base = 36
+    if isinstance(num, str):
+        n = int(num, from_base)
+    else:
+        n = int(num)
+    alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    if n < to_base:
+        return alphabet[n]
+    else:
+        return get_hash(n // to_base) + alphabet[n % to_base]
+
+
 def main():
     pass
 
