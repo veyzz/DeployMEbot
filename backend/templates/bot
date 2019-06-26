@@ -19,7 +19,7 @@ case "$1" in
             fi
         fi
         echo "Starting bot"
-        venv/bin/python3 $BOT_FILE >> bot.log 2>&1 &
+        venv/bin/python3 $BOT_FILE >> log/bot.log 2>&1 &
         PID=$!
         if ( kill -0 $PID 2> /dev/null ); then
             echo $PID > bot.pid
