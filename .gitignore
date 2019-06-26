@@ -4,3 +4,4 @@ __pycache__/
 test/
 bots/
 download/
+test.sh
