@@ -8,8 +8,9 @@ exec 2>$log_file
 
 # read args
 user_id=$1
-arch=$2
-pathtobot=$3
+bot_id=$2
+arch=$3
+pathtobot=$4
 bot_name=${arch%.zip}
 
 # make new dir and clean old files
@@ -48,6 +49,7 @@ cat $pathtobot/backend/templates/bot > $pathtobot/bots/$user_id/$bot_name/bot.sh
 cat $pathtobot/backend/templates/handler > $pathtobot/bots/$user_id/$bot_name/handler.sh
 chmod +x $pathtobot/bots/$user_id/$bot_name/bot.sh
 
+echo $bot_id > $pathtobot/bots/$user_id/$bot_name/bot.id
 mv $log_file $pathtobot/bots/$user_id/$bot_name/log/installation.log
 echo "Done"
 exit 0

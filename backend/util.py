@@ -9,10 +9,10 @@ DB = config.db
 PATH = os.getcwd()
 
 
-def deploy(user_id, arch):
+def deploy(bot_id, user_id, arch):
     # run bash script and redirect stdout
     file = "{}/backend/preparefiles.sh".format(PATH)
-    sub = subprocess.run([file, str(user_id), arch, PATH], stdout=sys.stdout)
+    sub = subprocess.run([file, str(user_id), bot_id, arch, PATH], stdout=sys.stdout)
     if not sub.returncode:
         print("ok")
         return (0)

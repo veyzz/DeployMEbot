@@ -103,12 +103,13 @@ def _(message):
         for item in bots:
             if bot_name in item:
                 db.update_bot(item[0], status=False)
+                bot_id = item[0]
                 exist = True
         if not exist:
             bot_id = backend.get_hash(user_id) + backend.get_hash(
                 int(time.time() - EPOCH))
             db.insert_bot(bot_id, bot_name, False, 0, user_id)
-        backend.deploy(user_id, file_name)
+        backend.deploy(bot_id, user_id, file_name)
         bot.edit_message_text("Файл принят!", mes.chat.id, mes.message_id)
     except Exception as e:
         if mes:
