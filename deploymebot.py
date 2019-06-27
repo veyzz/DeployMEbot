@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import config
 import telebot
 from telebot import apihelper, types
 import cherrypy
@@ -10,12 +9,12 @@ import re
 import time
 import random
 import backend
-from dmbhelper import SQLighter
-import proxy
+from backend import SQLighter
+from backend import config
 
 MODE = config.mode
 TOKEN = config.token
-PROXYLIST = proxy.proxy
+PROXYLIST = config.proxy
 DB = config.db
 BOTS_COUNT = config.bots_count
 COMMANDS = config.commands

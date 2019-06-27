@@ -1,9 +1,9 @@
 # python wrapping for prepearing file system script
 import subprocess  # safelly run bash scripts from python
 import sys  # redirect stdout
-from dmbhelper import SQLighter
 import os
-import config
+from backend import config
+from backend.dmbhelper import SQLighter
 
 DB = config.db
 PATH = os.getcwd()

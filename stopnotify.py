@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-import config
 import telebot
 from telebot import apihelper
 import os
-import backend
-from dmbhelper import SQLighter
-import proxy
 import sys
+import backend
+from backend import SQLighter
+from backend import config
 
 TOKEN = config.token
-PROXYLIST = proxy.proxy
+PROXYLIST = config.proxy
 DB = config.db
 
 bot = telebot.TeleBot(TOKEN)

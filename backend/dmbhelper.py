@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sqlite3
 import time
-import backend
+from backend import util
 
 
 class SQLighter:
@@ -53,7 +53,7 @@ class SQLighter:
 
     def insert_user(self, user_id, by_id=None):
         with self.connection:
-            ref = backend.get_hash(user_id)
+            ref = util.get_hash(user_id)
             reg_date = int(time.time())
             self.cursor.execute(
                 "INSERT INTO users VALUES (?, 0, ?, 0, ?, 10, ?)",
