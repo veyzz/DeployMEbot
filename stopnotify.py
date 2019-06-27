@@ -18,10 +18,11 @@ def main(arg):
     bot_id = arg[1]
     db = SQLighter(DB)
     ent = db.get_bot(bot_id)
-    user_id = ent[4]
-    db.update_bot(bot_id, status=0)
-    response = 'Бот {} был остановлен'.format(bot_id)
-    bot.send_message(user_id, response)
+    if ent:
+        user_id = ent[4]
+        db.update_bot(bot_id, status=0)
+        response = 'Бот {} был остановлен'.format(bot_id)
+        bot.send_message(user_id, response)
 
 
 if __name__ == '__main__':
