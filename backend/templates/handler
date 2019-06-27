@@ -13,4 +13,7 @@ else
 fi
 
 echo "Bot stopped"
+bot_id=$(cat bot.id)
+cd ../../..
+venv/bin/python3 stopnotify.py $bot_id
 exit 0
