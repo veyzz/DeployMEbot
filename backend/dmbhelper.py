@@ -19,8 +19,7 @@ class SQLighter:
 
     def select_all(self, table):
         with self.connection:
-            sql = "SELECT * FROM {}".format(table)
-            return self.cursor.execute(sql).fetchall()
+            return self.cursor.execute(f"SELECT * FROM {table}").fetchall()
 
     def get_user(self, user_id):
         with self.connection:
@@ -68,15 +67,15 @@ class SQLighter:
     def update_user(self, user_id, **values):
         with self.connection:
             for field in values.keys():
-                sql = "UPDATE users SET {}=? WHERE id=?".format(field)
-                self.cursor.execute(sql, (values[field], user_id))
+                self.cursor.execute(f"UPDATE users SET {field}=? WHERE id=?",
+                                    (values[field], user_id))
             self.connection.commit()
 
     def update_bot(self, bot_id, **values):
         with self.connection:
             for field in values.keys():
-                sql = "UPDATE bots SET {}=? WHERE id=?".format(field)
-                self.cursor.execute(sql, (values[field], bot_id))
+                self.cursor.execute(f"UPDATE bots SET {field}=? WHERE id=?",
+                                    (values[field], bot_id))
             self.connection.commit()
 
     def __del__(self):

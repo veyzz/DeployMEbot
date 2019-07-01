@@ -72,7 +72,7 @@ def _(message):
             bot.edit_message_text("Файл должен быть формата zip!", mes.chat.id,
                                   mes.message_id)
             return
-        path = './download/{}/'.format(user_id)
+        path = f'./download/{user_id}/'
         if not os.path.exists(path):
             os.makedirs(path)
         path += file_name
@@ -168,7 +168,7 @@ def _(message):
         response = '''Загрузите файл в формате <i>*.zip</i> в котором должны содержаться следующие файлы:
 - <code>requerements.txt</code>, в котором указаны зависимости вашего проекта
 - <code>tostart.txt</code>, в котором указано, какой файл нам нужно запускать
-<b>Важно! У нас установлен интерпретатор Python 3.5.2,
+<b>Важно! У нас установлен интерпретатор Python 3.6.8,
 Позаботьтесь о совместимости Вашего кода!</b>'''
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
@@ -189,10 +189,10 @@ def _(message):
                     status = "Выключен"
             except:
                 status = "Неизвестно"
-            response += """
-<b>{}</b> [<i>{}</i>]
-ID бота: <code>{}</code>
-Осталось времени: <i>{}</i>\n""".format(item[1], status, item[0], item[3])
+            response += f"""
+<b>{item[1]}</b> [<i>{status}</i>]
+ID бота: <code>{item[0]}</code>
+Осталось времени: <i>{item[3]}</i>\n"""
         if not response:
             response = "\n<i>Пусто...</i>"
         response = "Ваши боты:\n" + response
@@ -268,9 +268,11 @@ ID бота: <code>{}</code>
 
 if __name__ == '__main__':
     if MODE == 1:
+        bot.remove_webhook()
+        bot.set_webhook(f"https://telegram.itsgay.club/{config.token}")
         cherrypy.config.update({
             'server.socket_host': '127.0.0.1',
-            'server.socket_port': 7777,
+            'server.socket_port': 7773,
             'engine.autoreload.on': True
         })
         cherrypy.quickstart(WebhookServer(), '/', {'/': {}})

@@ -21,7 +21,7 @@ def main(arg):
     if ent:
         user_id = ent[4]
         db.update_bot(bot_id, status=0)
-        response = 'Бот {} был остановлен'.format(bot_id)
+        response = f'Бот {bot_id} был остановлен'
         bot.send_message(user_id, response)
 
 
