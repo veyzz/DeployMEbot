@@ -22,6 +22,8 @@ PATH = os.getcwd()
 EPOCH = config.epoch
 
 bot = telebot.TeleBot(TOKEN)
+logger = backend.get_logger('Main', './log/deploymebot.log')
+logger.info('DeployMeBot started')
 
 
 class WebhookServer:

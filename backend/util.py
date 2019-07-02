@@ -2,6 +2,7 @@
 import subprocess  # safelly run bash scripts from python
 import sys  # redirect stdout
 import os
+import logging
 from backend import config
 from backend.dmbhelper import SQLighter
 
@@ -89,6 +90,17 @@ def get_hash(num):
         return alphabet[n]
     else:
         return get_hash(n // to_base) + alphabet[n % to_base]
+
+
+def get_logger(name, file):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    fh = logging.FileHandler(file)
+    logger.addHandler(fh)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    return logger
 
 
 def main():
