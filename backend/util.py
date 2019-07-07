@@ -12,13 +12,15 @@ PATH = os.getcwd()
 
 def deploy(bot_id, user_id, arch):
     # run bash script and redirect stdout
+    logger.info('Processing deploy')
     file = f"{PATH}/backend/preparefiles.sh"
     sub = subprocess.run([file, str(user_id), bot_id, arch, PATH],
                          stdout=sys.stdout)
     if not sub.returncode:
-        print("ok")
+        logger.info(f'Successfully deployed {bot_id} {user_id} from {arch}')
         return (0)
     else:
+        logger.error(sub.stderr)
         return (sub.stderr)
         return (1)
 
@@ -37,21 +39,24 @@ def controlbot(bot_id, command):
         elif stat.returncode == 5:
             db.update_bot(bot_id, status=0)
         if not sub.returncode:
-            print("ok")
+            logger.info(f'Successfully turned bot {bot_id}')
             return (0)
         else:
+            logger.error(sub.stderr)
             return (sub.stderr)
             return (1)
     elif command == 'remove':
         file = f"{PATH}/backend/removefiles.sh"
         sub = subprocess.run([file, str(bot_id), PATH], stdout=sys.stdout)
         if not sub.returncode:
-            print("ok")
+            logger.info(f'Successfully removed bot {bot_id}')
             return (0)
         else:
+            logger.error(sub.stderr)
             return (sub.stderr)
             return (1)
     elif command == 'logs':
+        logger.info(f'reading logs of {bot_id}')
         file_path = f"{path}/log/bot.log"
         if os.path.exists(file_path):
             if os.path.isfile(file_path):
@@ -65,6 +70,7 @@ def controlbot(bot_id, command):
 
 def check_status(bot_id):
     # checks status of user bot
+    logger.info(f'Checking status of {bot_id}')
     db = SQLighter(DB)
     bot = db.get_bot(bot_id)
     path = f"{PATH}/bots/{bot[4]}/{bot[1]}"
@@ -109,3 +115,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+else:
+    logger = get_logger('Util', f'{PATH}/log/deploymebot.log')

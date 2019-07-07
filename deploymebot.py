@@ -22,7 +22,7 @@ PATH = os.getcwd()
 EPOCH = config.epoch
 
 bot = telebot.TeleBot(TOKEN)
-logger = backend.get_logger('Main', './log/deploymebot.log')
+logger = backend.get_logger('Main', f'{PATH}/log/deploymebot.log')
 logger.info('DeployMeBot started')
 
 
@@ -51,28 +51,32 @@ def _(message):
             if user:
                 db.insert_user(message.from_user.id, user[0])
                 db.update_user(user[0], ref_count=user[3] + 1)
+                logger.info(f"{user[0]} invited {message.from_user.id}")
                 try:
                     response = "Похоже, кто-то пришел к нам по вашей ссылке. Спасибо."
                     bot.send_message(user[0], response)
                 except Exception as e:
-                    print(e)
+                    logger.error(e)
     if not db.get_user(message.from_user.id):
         db.insert_user(message.from_user.id)
+        logger.info(f"{message.from_user.id} has registered")
 
 
 @bot.message_handler(content_types=['document'])
 def _(message):
+    logger.info(f"{message.from_user.id} sent file")
     mes = None
     try:
         mes = bot.reply_to(message, "Обрабатываем...")
         user_id = message.from_user.id
-        file_name = re.sub(r'[^A-z0-9\.]', '', message.document.file_name)
+        file_name = re.sub(r'[^a-zA-Z0-9\.\_]', '', message.document.file_name)
         bot_name, _ = os.path.splitext(file_name)
         downloaded_file = bot.download_file(
             bot.get_file(message.document.file_id).file_path)
         if message.document.mime_type != "application/zip":
             bot.edit_message_text("Файл должен быть формата zip!", mes.chat.id,
                                   mes.message_id)
+            logger.error(f"{message.from_user.id} sent wrong file (ext)")
             return
         path = f'./download/{user_id}/'
         if not os.path.exists(path):
@@ -98,6 +102,9 @@ def _(message):
         if not (req and st):
             os.remove(path)
             bot.edit_message_text(err, mes.chat.id, mes.message_id)
+            logger.error(
+                f"{message.from_user.id} sent wrong file (no requirements.txt or/and tostart.txt)"
+            )
             return
         db = SQLighter(DB)
         bots = db.get_bots(user_id)
@@ -113,6 +120,9 @@ def _(message):
             db.insert_bot(bot_id, bot_name, False, 0, user_id)
         backend.deploy(bot_id, user_id, file_name)
         bot.edit_message_text("Файл принят!", mes.chat.id, mes.message_id)
+        logger.info(
+            f"Successfully set bot up: user_id {message.from_user.id}, bot_id {bot_id}"
+        )
     except Exception as e:
         if mes:
             bot.edit_message_text("Произошла ошибка... Попробуйте еще раз.",
@@ -121,7 +131,7 @@ def _(message):
             bot.reply_to(message, "Произошла ошибка... Попробуйте еще раз.")
         if not db.get_user(message.from_user.id):
             db.insert_user(message.from_user.id)
-        print("error: ", e)
+        logger.error(e)
 
 
 @bot.message_handler(regexp='/bot_(\w+) (\w+)')
@@ -139,6 +149,9 @@ def _(message):
                     bot_name = item[1]
                     break
             if bot_name:
+                logger.info(
+                    f"{message.from_user.id} sent command '{command}' to bot {bot_id}"
+                )
                 result = backend.controlbot(bot_id, command)
                 if result:
                     bot.send_message(message.from_user.id, result)
