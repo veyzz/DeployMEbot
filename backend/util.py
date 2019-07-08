@@ -12,7 +12,7 @@ PATH = os.getcwd()
 
 def deploy(bot_id, user_id, arch):
     # run bash script and redirect stdout
-    logger.info('Processing deploy')
+    logger.info(f'Processing deploy of {user_id} {bot_id}')
     file = f"{PATH}/backend/preparefiles.sh"
     sub = subprocess.run([file, str(user_id), bot_id, arch, PATH],
                          stdout=subprocess.PIPE,
@@ -51,10 +51,10 @@ def controlbot(bot_id, command):
         else:
             msg = ''
             if sub.stdout:
-                logger.error(sub.stdout.decode('utf-8'))
+                logger.info(f"{bot_id}: {sub.stdout.decode('utf-8')}")
                 msg += sub.stdout.decode('utf-8')
             if sub.stderr:
-                logger.error(sub.stderr.decode('utf-8'))
+                logger.error(f"{bot_id}: {sub.stderr.decode('utf-8')}")
                 msg += '\n' + sub.stderr.decode('utf-8')
             return sub.returncode, msg
     elif command == 'remove':
@@ -68,22 +68,19 @@ def controlbot(bot_id, command):
         else:
             msg = ''
             if sub.stdout:
-                logger.error(sub.stdout.decode('utf-8'))
+                logger.info(f"{bot_id}: {sub.stdout.decode('utf-8')}")
                 msg += sub.stdout.decode('utf-8')
             if sub.stderr:
-                logger.error(sub.stderr.decode('utf-8'))
+                logger.error(f"{bot_id}: {sub.stderr.decode('utf-8')}")
                 msg += '\n' + sub.stderr.decode('utf-8')
             return sub.returncode, msg
     elif command == 'logs':
-        logger.info(f'reading logs of {bot_id}')
+        logger.info(f'send logs of {bot_id}')
         file_path = f"{path}/log/bot.log"
         if os.path.exists(file_path):
             if os.path.isfile(file_path):
-                with open(file_path, 'r') as file:
-                    logs = file.read()
-                if logs:
-                    return 0, logs
-        return 0, "Пусто..."
+                return 10, open(file_path, 'r')
+        return 0, "Не найдено..."
     return 100, None
 
 
@@ -94,7 +91,13 @@ def check_status(bot_id):
     bot = db.get_bot(bot_id)
     path = f"{PATH}/bots/{bot[4]}/{bot[1]}"
     file = f"{path}/bot.sh"
-    stat = subprocess.run([file, 'status', path], stdout=sys.stdout)
+    stat = subprocess.run([file, 'status', path],
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE)
+    if stat.stdout:
+        logger.info(f"{bot_id}: {stat.stdout.decode('utf-8')}")
+    if stat.stderr:
+        logger.error(f"{bot_id}: {stat.stderr.decode('utf-8')}")
     if stat.returncode == 4:
         db.update_bot(bot_id, status=1)
     elif stat.returncode == 5:

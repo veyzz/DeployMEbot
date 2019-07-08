@@ -166,6 +166,9 @@ def _(message):
                 result = backend.controlbot(bot_id, command)
                 if result[0] == 0:
                     bot.reply_to(message, result[1])
+                elif result[0] == 10:
+                    bot.send_document(message.from_user.id, result[1])
+                    result[1].close()
                 else:
                     bot.reply_to(
                         message,
