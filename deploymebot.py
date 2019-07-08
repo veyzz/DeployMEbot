@@ -165,18 +165,18 @@ def _(message):
                 )
                 result = backend.controlbot(bot_id, command)
                 if result[0] == 0:
-                    bot.reply_to(message, 'Успешно!')
+                    bot.reply_to(message, result[1])
                 else:
                     bot.reply_to(
                         message,
-                        f'Произошла какая-то ошибка. Код ошибки: {result[0]}\n{result[1]}'
+                        f'Произошла ошибка. Код ошибки: {result[0]}\n{result[1]}'
                     )
             else:
                 response = "<i>Нет такого бота...</i>"
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,
                                                      row_width=3)
                 keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
-                keyboard.row("💻 О проекте")
+                keyboard.row("📬 Помощь", "💻 О проекте")
                 bot.send_message(message.chat.id,
                                  response,
                                  reply_markup=keyboard,
@@ -186,7 +186,7 @@ def _(message):
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,
                                                  row_width=3)
             keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
-            keyboard.row("💻 О проекте")
+            keyboard.row("📬 Помощь", "💻 О проекте")
             bot.send_message(message.chat.id,
                              response,
                              reply_markup=keyboard,
@@ -238,7 +238,7 @@ def _(message):
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
-        keyboard.row("💻 О проекте")
+        keyboard.row("📬 Помощь", "💻 О проекте")
         bot.send_message(message.chat.id,
                          response,
                          reply_markup=keyboard,
@@ -266,7 +266,8 @@ ID бота: <code>{item[0]}</code>
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
         keyboard.row("🚀 Запуск/остановка", "💬 Посмотреть логи")
-        keyboard.row("💥 Удалить бота", "💻 О проекте")
+        keyboard.row("💥 Удалить бота", "📬 Помощь")
+        keyboard.row("💻 О проекте")
         bot.send_message(message.chat.id,
                          response,
                          reply_markup=keyboard,
@@ -280,7 +281,8 @@ ID бота: <code>{item[0]}</code>
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
         keyboard.row("🚀 Запуск/остановка", "💬 Посмотреть логи")
-        keyboard.row("💥 Удалить бота", "💻 О проекте")
+        keyboard.row("💥 Удалить бота", "📬 Помощь")
+        keyboard.row("💻 О проекте")
         bot.send_message(message.chat.id,
                          response,
                          reply_markup=keyboard,
@@ -299,7 +301,8 @@ ID бота: <code>{item[0]}</code>
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
         keyboard.row("🚀 Запуск/остановка", "💬 Посмотреть логи")
-        keyboard.row("💥 Удалить бота", "💻 О проекте")
+        keyboard.row("💥 Удалить бота", "📬 Помощь")
+        keyboard.row("💻 О проекте")
         bot.send_message(message.chat.id,
                          response,
                          reply_markup=keyboard,
@@ -314,7 +317,8 @@ ID бота: <code>{item[0]}</code>
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
         keyboard.row("🚀 Запуск/остановка", "💬 Посмотреть логи")
-        keyboard.row("💥 Удалить бота", "💻 О проекте")
+        keyboard.row("💥 Удалить бота", "📬 Помощь")
+        keyboard.row("💻 О проекте")
         bot.send_message(message.chat.id,
                          response,
                          reply_markup=keyboard,
@@ -324,7 +328,20 @@ ID бота: <code>{item[0]}</code>
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
         keyboard.row("🚀 Запуск/остановка", "💬 Посмотреть логи")
-        keyboard.row("💥 Удалить бота", "💻 О проекте")
+        keyboard.row("💥 Удалить бота", "📬 Помощь")
+        keyboard.row("💻 О проекте")
+        bot.send_message(message.chat.id,
+                         response,
+                         reply_markup=keyboard,
+                         parse_mode='html')
+    elif message.text == "📬 Помощь":
+        response = \
+"Гайд: {ссылка}\
+\nДля связи: <code>/feedback {сообщение}</code>"
+
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+        keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
+        keyboard.row("📬 Помощь", "💻 О проекте")
         bot.send_message(message.chat.id,
                          response,
                          reply_markup=keyboard,
@@ -337,7 +354,7 @@ ID бота: <code>{item[0]}</code>
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
-        keyboard.row("💻 О проекте")
+        keyboard.row("📬 Помощь", "💻 О проекте")
         bot.send_message(message.chat.id,
                          response,
                          reply_markup=keyboard,
@@ -346,7 +363,7 @@ ID бота: <code>{item[0]}</code>
         response = 'Выберите интересующий Вас элемент меню:'
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
-        keyboard.row("💻 О проекте")
+        keyboard.row("📬 Помощь", "💻 О проекте")
         bot.send_message(message.chat.id, response, reply_markup=keyboard)
 
 

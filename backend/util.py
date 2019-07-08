@@ -15,14 +15,19 @@ def deploy(bot_id, user_id, arch):
     logger.info('Processing deploy')
     file = f"{PATH}/backend/preparefiles.sh"
     sub = subprocess.run([file, str(user_id), bot_id, arch, PATH],
-                         stdout=sys.stdout)
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
     if not sub.returncode:
         logger.info(f'Successfully deployed {bot_id} {user_id} from {arch}')
-        return (0)
+        return 0
     else:
-        logger.error(sub.stderr)
-        return (sub.stderr)
-        return (1)
+        msg = ''
+        if sub.stdout:
+            msg += sub.stdout.decode('utf-8')
+        if sub.stderr:
+            msg += '\n' + sub.stderr.decode('utf-8')
+        logger.error(msg)
+        return sub.returncode
 
 
 def controlbot(bot_id, command):
@@ -42,7 +47,7 @@ def controlbot(bot_id, command):
             db.update_bot(bot_id, status=0)
         if not sub.returncode:
             logger.info(f'Successfully turned bot {bot_id}')
-            return 0, 'Success'
+            return 0, 'Успешно!'
         else:
             msg = ''
             if sub.stdout:
@@ -54,10 +59,12 @@ def controlbot(bot_id, command):
             return sub.returncode, msg
     elif command == 'remove':
         file = f"{PATH}/backend/removefiles.sh"
-        sub = subprocess.run([file, str(bot_id), PATH], stdout=sys.stdout)
+        sub = subprocess.run([file, str(bot_id), PATH],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
         if not sub.returncode:
             logger.info(f'Successfully removed bot {bot_id}')
-            return 0, 'Success'
+            return 0, 'Успешно!'
         else:
             msg = ''
             if sub.stdout:
@@ -75,9 +82,9 @@ def controlbot(bot_id, command):
                 with open(file_path, 'r') as file:
                     logs = file.read()
                 if logs:
-                    return logs
-        return "Пусто..."
-    return None
+                    return 0, logs
+        return 0, "Пусто..."
+    return 100, None
 
 
 def check_status(bot_id):
