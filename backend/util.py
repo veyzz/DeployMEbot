@@ -32,7 +32,9 @@ def controlbot(bot_id, command):
     path = f"{PATH}/bots/{bot[4]}/{bot[1]}"
     if command in ['start', 'stop']:
         file = f"{path}/bot.sh"
-        sub = subprocess.run([file, command, path], stdout=sys.stdout)
+        sub = subprocess.run([file, command, path],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
         stat = subprocess.run([file, 'status', path], stdout=sys.stdout)
         if stat.returncode == 4:
             db.update_bot(bot_id, status=1)
@@ -40,21 +42,31 @@ def controlbot(bot_id, command):
             db.update_bot(bot_id, status=0)
         if not sub.returncode:
             logger.info(f'Successfully turned bot {bot_id}')
-            return (0)
+            return 0, 'Success'
         else:
-            logger.error(sub.stderr)
-            return (sub.stderr)
-            return (1)
+            msg = ''
+            if sub.stdout:
+                logger.error(sub.stdout.decode('utf-8'))
+                msg += sub.stdout.decode('utf-8')
+            if sub.stderr:
+                logger.error(sub.stderr.decode('utf-8'))
+                msg += '\n' + sub.stderr.decode('utf-8')
+            return sub.returncode, msg
     elif command == 'remove':
         file = f"{PATH}/backend/removefiles.sh"
         sub = subprocess.run([file, str(bot_id), PATH], stdout=sys.stdout)
         if not sub.returncode:
             logger.info(f'Successfully removed bot {bot_id}')
-            return (0)
+            return 0, 'Success'
         else:
-            logger.error(sub.stderr)
-            return (sub.stderr)
-            return (1)
+            msg = ''
+            if sub.stdout:
+                logger.error(sub.stdout.decode('utf-8'))
+                msg += sub.stdout.decode('utf-8')
+            if sub.stderr:
+                logger.error(sub.stderr.decode('utf-8'))
+                msg += '\n' + sub.stderr.decode('utf-8')
+            return sub.returncode, msg
     elif command == 'logs':
         logger.info(f'reading logs of {bot_id}')
         file_path = f"{path}/log/bot.log"

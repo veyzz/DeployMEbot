@@ -77,7 +77,11 @@ def _(message):
         mes = bot.reply_to(message, "Обрабатываем...")
         user_id = message.from_user.id
         file_name = re.sub(r'[^a-zA-Z0-9\.\_]', '', message.document.file_name)
+        if file_name == ".zip":
+            file_name = "untitled.zip"
         bot_name, _ = os.path.splitext(file_name)
+        if not re.search(r'[a-zA-Z0-9]', bot_name):
+            bot_name = "untitled"
         downloaded_file = bot.download_file(
             bot.get_file(message.document.file_id).file_path)
         if message.document.mime_type != "application/zip":
@@ -160,8 +164,13 @@ def _(message):
                     f"{message.from_user.id} sent command '{command}' to bot {bot_id}"
                 )
                 result = backend.controlbot(bot_id, command)
-                if result:
-                    bot.send_message(message.from_user.id, result)
+                if result[0] == 0:
+                    bot.reply_to(message, 'Успешно!')
+                else:
+                    bot.reply_to(
+                        message,
+                        f'Произошла какая-то ошибка. Код ошибки: {result[0]}\n{result[1]}'
+                    )
             else:
                 response = "<i>Нет такого бота...</i>"
                 keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,
