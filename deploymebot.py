@@ -20,6 +20,7 @@ BOTS_COUNT = config.bots_count
 COMMANDS = config.commands
 PATH = os.getcwd()
 EPOCH = config.epoch
+FEEDBACK = config.feedback_channel
 
 bot = telebot.TeleBot(TOKEN)
 logger = backend.get_logger('Main', f'{PATH}/log/deploymebot.log')
@@ -41,11 +42,14 @@ def _(message):
     response = \
 "Этот бот позволяет развернуть Вашего бота \
 на сервере, чтобы держать его запущенным 24/7. \
-\nДля связи: @tpbot (поменять)"
+\nДля связи: <code>/feedback {сообщение}</code>"
 
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
     keyboard.row('✨Попробовать✨')
-    bot.send_message(message.chat.id, response, reply_markup=keyboard)
+    bot.send_message(message.chat.id,
+                     response,
+                     reply_markup=keyboard,
+                     parse_mode='html')
     db = SQLighter(DB)
     if not db.get_user(message.from_user.id):
         if re.search('/start (\w+)', message.text):
@@ -180,6 +184,36 @@ def _(message):
                              parse_mode='html')
 
 
+@bot.message_handler(regexp='/feedback (.*)')
+def _(message):
+    if re.search('/feedback (.*)', message.text):
+        report = re.search('/feedback (.*)', message.text, re.DOTALL).group(1)
+        uid = message.from_user.id
+        mesid = message.message_id
+        user_info = f'{message.from_user.first_name}'
+        try:
+            user_info += f' (@{message.from_user.username})'
+        except:
+            pass
+        response = f"[{uid} {mesid}]\nПользователь {user_info} оставил сообщение:\n{report}"
+        bot.send_message(FEEDBACK, response)
+        bot.send_message(message.from_user.id,
+                         'Спасибо, с Вами скоро свяжутся')
+
+
+@bot.channel_post_handler()
+def _(message):
+    try:
+        feedback = message.reply_to_message.text
+    except:
+        feedback = None
+    if feedback:
+        uid = re.search(r'\[(\d+) (\d+)\]', feedback).group(1)
+        mesid = re.search(r'\[(\d+) (\d+)\]', feedback).group(2)
+        response = f"Ответ поддержки:\n{message.text}"
+        bot.send_message(uid, response, reply_to_message_id=mesid)
+
+
 @bot.message_handler(content_types=["text"])
 def _(message):
     if message.text == "⬇️ Загрузить бота":
@@ -290,12 +324,15 @@ ID бота: <code>{item[0]}</code>
         response = \
 "Этот бот позволяет развернуть Вашего бота \
 на сервере, чтобы держать его запущенным 24/7. \
-\nДля связи: @tpbot (поменять)"
+\nДля связи: <code>/feedback {сообщение}</code>"
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
         keyboard.row("💻 О проекте")
-        bot.send_message(message.chat.id, response, reply_markup=keyboard)
+        bot.send_message(message.chat.id,
+                         response,
+                         reply_markup=keyboard,
+                         parse_mode='html')
     else:
         response = 'Выберите интересующий Вас элемент меню:'
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
