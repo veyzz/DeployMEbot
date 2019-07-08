@@ -243,7 +243,7 @@ def _(message):
 - <code>tostart.txt</code>, в котором указано, какой файл нам нужно запускать \
 <b>\n\nВажно! У нас установлен интерпретатор Python 3.6.8, \
 Позаботьтесь о совместимости Вашего кода!</b> \
-\n\nНепонятно? Смотри <a href='https://telegra.ph/Kak-polzovatsya-servisom-DeployMeBot-07-07'>гайд.</a>"
+\n\nЧто-то непонятно? Смотри <a href='https://telegra.ph/DeployMEbot-Gajd-07-08'>гайд.</a>"
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "⬇️ Загрузить бота")
@@ -305,7 +305,7 @@ ID бота: <code>{item[0]}</code>
 - <code>tostart.txt</code>, в котором указано, какой файл нам нужно запускать \
 <b>\n\nВажно! У нас установлен интерпретатор Python 3.6.8, \
 Позаботьтесь о совместимости Вашего кода!</b> \
-\n\nНепонятно? Смотри <a href='https://telegra.ph/Kak-polzovatsya-servisom-DeployMeBot-07-07'>гайд.</a>"
+\n\nНепонятно? Смотри <a href='https://telegra.ph/DeployMEbot-Gajd-07-08'>гайд.</a>"
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         keyboard.row("🔐 Панель управления", "🧩 Обновить файлы")
@@ -345,7 +345,7 @@ ID бота: <code>{item[0]}</code>
                          parse_mode='html')
     elif message.text == "📬 Помощь":
         response = \
-"Гайд: {ссылка}\
+"Гайд по установке бота: https://telegra.ph/DeployMEbot-Gajd-07-08\
 \nДля связи: <code>/feedback {сообщение}</code>"
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
