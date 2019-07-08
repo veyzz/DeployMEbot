@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-import telebot
-from telebot import apihelper, types
-import cherrypy
-import os
-import zipfile
 import json
+import os
+import random
 import re
 import time
-import random
+import zipfile
+import cherrypy
+import telebot
+from telebot import apihelper, types
 import backend
-from backend import SQLighter
 from backend import config
+from backend import SQLighter
 
 MODE = config.mode
 TOKEN = config.token
@@ -145,10 +145,10 @@ def _(message):
         logger.error(e)
 
 
-@bot.message_handler(regexp='/bot_(\w+) (\w+)')
+@bot.message_handler(regexp='^/bot_(\w+) (\w+)$')
 def _(message):
-    if re.search('/bot_(\w+) (\w+)', message.text):
-        reg = re.search('/bot_(\w+) (\w+)', message.text)
+    if re.search('^/bot_(\w+) (\w+)$', message.text):
+        reg = re.search('^/bot_(\w+) (\w+)$', message.text)
         command = reg.group(1)
         bot_id = reg.group(2)
         if command in COMMANDS:
@@ -193,7 +193,7 @@ def _(message):
                              parse_mode='html')
 
 
-@bot.message_handler(regexp='/feedback')
+@bot.message_handler(commands=['feedback'])
 def _(message):
     if re.search('/feedback (.*)', message.text):
         report = re.search('/feedback (.*)', message.text, re.DOTALL).group(1)
