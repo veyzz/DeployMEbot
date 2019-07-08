@@ -193,7 +193,7 @@ def _(message):
                              parse_mode='html')
 
 
-@bot.message_handler(regexp='/feedback (.*)')
+@bot.message_handler(regexp='/feedback')
 def _(message):
     if re.search('/feedback (.*)', message.text):
         report = re.search('/feedback (.*)', message.text, re.DOTALL).group(1)
@@ -208,6 +208,12 @@ def _(message):
         bot.send_message(FEEDBACK, response)
         bot.send_message(message.from_user.id,
                          'Спасибо, с Вами скоро свяжутся')
+    else:
+        response = \
+"<code>/feedback {сообщение}</code>\
+\n\nПоддерживаются только текстовые сообщения."
+
+        bot.send_message(message.from_user.id, response, parse_mode='html')
 
 
 @bot.channel_post_handler()
