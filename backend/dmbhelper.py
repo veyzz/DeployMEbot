@@ -21,6 +21,10 @@ class SQLighter:
         with self.connection:
             return self.cursor.execute(f"SELECT * FROM {table}").fetchall()
 
+    def get_users(self):
+        with self.connection:
+            return self.cursor.execute(f"SELECT * FROM users").fetchall()
+
     def get_user(self, user_id):
         with self.connection:
             result = self.cursor.execute("SELECT * FROM users WHERE id = ?",
@@ -76,6 +80,16 @@ class SQLighter:
             for field in values.keys():
                 self.cursor.execute(f"UPDATE bots SET {field}=? WHERE id=?",
                                     (values[field], bot_id))
+            self.connection.commit()
+
+    def delete_user(self, user_id):
+        with self.connection:
+            self.cursor.execute("DELETE FROM users WHERE id = ?", (user_id, ))
+            self.connection.commit()
+
+    def delete_bot(self, bot_id):
+        with self.connection:
+            self.cursor.execute("DELETE FROM bots WHERE id = ?", (bot_id, ))
             self.connection.commit()
 
     def __del__(self):
