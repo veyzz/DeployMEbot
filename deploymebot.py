@@ -69,6 +69,23 @@ def _(message):
         logger.info(f"{message.from_user.id} has registered")
 
 
+@bot.message_handler(commands=['users'])
+def _(message):
+    if message.from_user.id in config.admins:
+        db = SQLighter(DB)
+        logger.info("getting list of alive users")
+        response = '<b>Список пользователей:</b>'
+        for user in db.get_users():
+            try:
+                bot.send_chat_action(user[0], 'typing')
+            except:
+                logger.info(f"user {user[0]} blocked bot")
+                db.delete_user(user[0])
+            else:
+                response += f'\n<a href="tg://user?id={user[0]}">{user[0]}</a>'
+        bot.send_message(message.chat.id, response, parse_mode='html')
+
+
 @bot.message_handler(content_types=['document'])
 def _(message):
     logger.info(f"{message.from_user.id} sent file")
