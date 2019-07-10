@@ -3,5 +3,8 @@ __pycache__/
 .gitignore
 test/
 bots/
+log/
 download/
 test.sh
+start.sh
+config.py
