@@ -85,7 +85,7 @@ def _(message):
                 users.append(user[0])
         users = list(
             map(lambda x: f'<a href="tg://user?id={x}">{x}</a>', users))
-        response = '<b>Список пользователей:\n</b>' + ', '.join(users)
+        response = f'<b>Список пользователей [{len(users)}]:\n</b>' + ', '.join(users)
         bot.send_message(message.chat.id, response, parse_mode='html')
 
 
