@@ -58,38 +58,61 @@ class SQLighter:
         with self.connection:
             ref = util.get_hash(user_id)
             reg_date = int(time.time())
-            self.cursor.execute(
-                "INSERT INTO users VALUES (?, 0, ?, 0, ?, 10, ?)",
-                (user_id, ref, by_id, reg_date))
+            try:
+                self.cursor.execute(
+                    "INSERT INTO users VALUES (?, 0, ?, 0, ?, 10, ?)",
+                    (user_id, ref, by_id, reg_date))
+            except:
+                print('failed to execute insert_user()')
             self.connection.commit()
 
     def insert_bot(self, *bot):
         with self.connection:
-            self.cursor.execute("INSERT INTO bots VALUES (?, ?, ?, ?, ?)", bot)
+            try:
+                self.cursor.execute("INSERT INTO bots VALUES (?, ?, ?, ?, ?)",
+                                    bot)
+            except:
+                print('failed to execute insert_bot()')
             self.connection.commit()
 
     def update_user(self, user_id, **values):
         with self.connection:
             for field in values.keys():
-                self.cursor.execute(f"UPDATE users SET {field}=? WHERE id=?",
-                                    (values[field], user_id))
+                try:
+                    self.cursor.execute(
+                        f"UPDATE users SET {field}=? WHERE id=?",
+                        (values[field], user_id))
+                except:
+                    print('failed to execute update_user()')
             self.connection.commit()
 
     def update_bot(self, bot_id, **values):
         with self.connection:
             for field in values.keys():
-                self.cursor.execute(f"UPDATE bots SET {field}=? WHERE id=?",
-                                    (values[field], bot_id))
+                try:
+                    self.cursor.execute(
+                        f"UPDATE bots SET {field}=? WHERE id=?",
+                        (values[field], bot_id))
+                except:
+                    print('failed to execute update_bot()')
             self.connection.commit()
 
     def delete_user(self, user_id):
         with self.connection:
-            self.cursor.execute("DELETE FROM users WHERE id = ?", (user_id, ))
+            try:
+                self.cursor.execute("DELETE FROM users WHERE id = ?",
+                                    (user_id, ))
+            except:
+                print('failed to execute delete_user()')
             self.connection.commit()
 
     def delete_bot(self, bot_id):
         with self.connection:
-            self.cursor.execute("DELETE FROM bots WHERE id = ?", (bot_id, ))
+            try:
+                self.cursor.execute("DELETE FROM bots WHERE id = ?",
+                                    (bot_id, ))
+            except:
+                print('failed to execute delete_bot()')
             self.connection.commit()
 
     def __del__(self):
