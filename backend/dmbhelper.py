@@ -41,6 +41,14 @@ class SQLighter:
                 return result[0]
             return None
 
+    def get_running_bots(self):
+        with self.connection:
+            result = self.cursor.execute(
+                "SELECT * FROM bots WHERE status = 1").fetchall()
+            if result:
+                return result
+            return None
+
     def get_bots(self, user_id):
         with self.connection:
             return self.cursor.execute("SELECT * FROM bots WHERE owner = ?",
