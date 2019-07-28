@@ -37,7 +37,7 @@ echo "Creating virtual environment..."
 python3 -m venv $pathtobot/bots/$user_id/$bot_name/venv
 source $pathtobot/bots/$user_id/$bot_name/venv/bin/activate
 echo "Installing essensial modules..."
-pip3 install -r $pathtobot/bots/$user_id/$bot_name/requirements.txt
+pip3 install --no-cache-dir -r $pathtobot/bots/$user_id/$bot_name/requirements.txt
 echo "Removing trash directory..."
 rm -rfv $pathtobot/bots/$user_id/$bot_name/$dr
 echo "Creating log directory..."
