@@ -1,4 +1,5 @@
 # python wrapping for prepearing file system script
+from time import sleep
 import subprocess  # safelly run bash scripts from python
 import sys  # redirect stdout
 import os
@@ -37,26 +38,15 @@ def controlbot(bot_id, command):
     path = f"{PATH}/bots/{bot[4]}/{bot[1]}"
     if command in ['start', 'stop']:
         file = f"{path}/bot.sh"
-        sub = subprocess.run([file, command, path],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+        sub = subprocess.Popen([file, command, path])
+        sleep(2)
         stat = subprocess.run([file, 'status', path], stdout=sys.stdout)
+        logger.info(f'{stat.returncode}')
         if stat.returncode == 4:
             db.update_bot(bot_id, status=1)
         elif stat.returncode == 5:
             db.update_bot(bot_id, status=0)
-        if not sub.returncode:
-            logger.info(f'Successfully turned bot {bot_id}')
-            return 0, 'Успешно!'
-        else:
-            msg = ''
-            if sub.stdout:
-                logger.info(f"{bot_id}: {sub.stdout.decode('utf-8')}")
-                msg += sub.stdout.decode('utf-8')
-            if sub.stderr:
-                logger.error(f"{bot_id}: {sub.stderr.decode('utf-8')}")
-                msg += '\n' + sub.stderr.decode('utf-8')
-            return sub.returncode, msg
+        return 0, 'Слушаюсь!'
     elif command == 'remove':
         file = f"{PATH}/backend/removefiles.sh"
         sub = subprocess.run([file, str(bot_id), PATH],
