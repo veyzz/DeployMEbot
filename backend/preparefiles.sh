@@ -23,7 +23,11 @@ if ! [ -d $pathtobot/bots/$user_id/$bot_name ]; then
     mkdir $pathtobot/bots/$user_id/$bot_name
 else
     if [ -f $pathtobot/bots/$user_id/$bot_name/bot.sh ]; then
-        echo "DADA YA"
+        whereiam=$(pwd)
+        cd $pathtobot/bots/$user_id/$bot_name/
+        bash bot.sh stop
+        cd $whereiam
+    fi
 fi
 echo "Cleaning bot folder..."
 rm -rfv $pathtobot/bots/$user_id/$bot_name/*
