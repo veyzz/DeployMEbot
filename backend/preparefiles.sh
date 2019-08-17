@@ -20,7 +20,10 @@ if ! [ -d $pathtobot/bots/$user_id ]; then
 fi
 if ! [ -d $pathtobot/bots/$user_id/$bot_name ]; then
     echo "Creating bot directory..."
-    mkdir $pathtobot/bots/$user_id/$bot_name 
+    mkdir $pathtobot/bots/$user_id/$bot_name
+else
+    if [ -f $pathtobot/bots/$user_id/$bot_name/bot.sh ]; then
+        echo "DADA YA"
 fi
 echo "Cleaning bot folder..."
 rm -rfv $pathtobot/bots/$user_id/$bot_name/*
